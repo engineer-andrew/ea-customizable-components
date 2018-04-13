@@ -30,7 +30,7 @@
     "label-position": true,
     "max-line-length": [
       true,
-      140
+      150
     ],
     "member-access": false,
     "member-ordering": [
@@ -120,13 +120,13 @@
     "directive-selector": [
       true,
       "attribute",
-      "app",
+      "ea",
       "camelCase"
     ],
     "component-selector": [
       true,
       "element",
-      "app",
+      "ea",
       "kebab-case"
     ],
     "no-output-on-prefix": true,

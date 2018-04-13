@@ -1,0 +1,19 @@
+<div class="container mt-2" (eaEventListener)="documentClickListener($event)" [config]="listenerConfig">
+  <div class="row">
+    <div class="col mb-4">
+      <ea-multi-select-dropdown (failedToOpen)="failedToOpen($event)" [config]="country" [id]="1" (changed)="changed($event)" (closed)="closed($event)" (opened)="opened($event)"></ea-multi-select-dropdown>
+    </div>
+
+    <div class="col mb-4">
+      <ea-multi-select-dropdown (failedToOpen)="failedToOpen($event)" [config]="state" [id]="2" (changed)="changed($event)" (closed)="closed($event)" (opened)="opened($event)"></ea-multi-select-dropdown>
+    </div>
+
+    <div class="col mb-4">
+      <ea-multi-select-dropdown (failedToOpen)="failedToOpen($event)" [config]="county" [id]="3" (changed)="changed($event)" (closed)="closed($event)" (opened)="opened($event)"></ea-multi-select-dropdown>
+    </div>
+
+    <div class="col mb-4" id="zip">
+      <ea-multi-select-dropdown (failedToOpen)="failedToOpen($event)" [config]="zip" [id]="4" (changed)="changed($event)" (closed)="closed($event)" (opened)="opened($event)"></ea-multi-select-dropdown>
+    </div>
+  </div>
+</div>

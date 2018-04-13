@@ -1,0 +1,19 @@
+{
+  "name": "ea-event-listener",
+  "author": "Andrew Webster",
+  "description": "A directive that allows events to be listened for and some action taken when the event is heard.",
+  "version": "7.0.0",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/engineer-andrew/ea-customizable-components/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/engineer-andrew/ea-customizable-components.git"
+  },
+  "private": false,
+  "peerDependencies": {
+    "@angular/common": "^7.1.0",
+    "@angular/core": "^7.1.0"
+  }
+}

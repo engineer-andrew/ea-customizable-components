@@ -9,9 +9,10 @@ export class EaMultiSelectDropdownService implements EaMultiSelectDropdownServic
 
   constructor() { }
 
-  findClosest(element: HTMLElement): HTMLElement {
-    return element && (element.className === 'multi-select-dropdown-container' ?
-      element : this.findClosest(<HTMLElement>element.parentNode));
+  closeAll(): void {
+    this.components.forEach(c => {
+      c.close();
+    });
   }
 
   open(component: EaMultiSelectDropdownComponent): void {
@@ -24,13 +25,5 @@ export class EaMultiSelectDropdownService implements EaMultiSelectDropdownServic
 
   register(component: EaMultiSelectDropdownComponent): void {
     this.components.push(component);
-    if (!this.isBodyListenerRegistered) {
-      document.querySelector('body').addEventListener('click', (event) => {
-        const match = this.findClosest(<HTMLElement>event.target);
-        if (match === null) {
-          this.components.forEach(c => c.close());
-        }
-      });
-    }
   }
 }

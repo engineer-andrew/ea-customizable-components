@@ -1,5 +1,5 @@
-<div [ngClass]="config.containerClasses" class="multi-select-dropdown-container">
-  <label (click)="toggle()">{{label}}</label>
+<div [ngClass]="config.containerClasses" class="ea-multi-select-dropdown-container">
+  <label eaMultiSelectDropdownClose="true">{{label}}</label>
   <button [ngClass]="config.buttonClasses" (click)="toggle()">
     <div [ngClass]="config.buttonWrapperClasses">
       <span [ngStyle]="config.buttonTextStyles" *ngIf="!!buttonText">{{buttonText}}</span>

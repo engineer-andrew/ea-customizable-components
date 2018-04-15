@@ -5,7 +5,7 @@ import { EaMultiSelectDropdownService } from '../multi-select-dropdown-service/m
 @Component({
   selector: 'ea-multi-select-dropdown',
   templateUrl: './multi-select-dropdown.component.html',
-  styles: ['.multi-select-dropdown-container > label { width: 100%; }']
+  styles: ['.ea-multi-select-dropdown-container > label { width: 100%; }']
 })
 export class EaMultiSelectDropdownComponent implements AfterContentInit {
   @Input() addSelectAllOption: boolean;

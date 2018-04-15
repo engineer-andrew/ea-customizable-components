@@ -18,16 +18,16 @@
   cursor: pointer;
 }
 
-.multi-select-dropdown-container {
+.ea-multi-select-dropdown-container {
   position: relative;
   width: 100%;
 }
 
-.multi-select-dropdown-container button{
+.ea-multi-select-dropdown-container button{
   width: 100%;
 }
 
-.multi-select-dropdown-container button > div > span {
+.ea-multi-select-dropdown-container button > div > span {
   text-align: left;
   text-overflow: ellipsis;
   overflow: hidden;

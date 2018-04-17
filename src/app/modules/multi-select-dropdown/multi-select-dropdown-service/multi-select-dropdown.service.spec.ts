@@ -1,5 +1,5 @@
 import { TestBed, inject } from '@angular/core/testing';
-import { FakeEaMultiSelectDropdownComponent } from '../multi-select-dropdown.module';
+import { FakeEaMultiSelectDropdownComponent } from '../multi-select-dropdown-component/fake-multi-select-dropdown.component';
 
 import { EaMultiSelectDropdownService } from './multi-select-dropdown.service';
 

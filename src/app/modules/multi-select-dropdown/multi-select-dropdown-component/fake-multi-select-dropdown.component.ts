@@ -5,7 +5,7 @@ import { EaMultiSelectDropdownComponent } from '../multi-select-dropdown-compone
 
 @Component({
   selector: 'ea-multi-select-dropdown',
-  templateUrl: './multi-select-dropdown.component.html',
+  template: '<ng-template></ng-template>',
   styles: ['.multi-select-dropdown-container > label { width: 100%; }']
 })
 export class FakeEaMultiSelectDropdownComponent extends EaMultiSelectDropdownComponent implements AfterContentInit {

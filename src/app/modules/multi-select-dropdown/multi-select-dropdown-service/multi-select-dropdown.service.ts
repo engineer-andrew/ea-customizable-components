@@ -15,7 +15,7 @@ export class EaMultiSelectDropdownService implements EaMultiSelectDropdownServic
     });
   }
 
-  open(component: EaMultiSelectDropdownComponent): void {
+  closeOthers(component: EaMultiSelectDropdownComponent): void {
     this.components.forEach(c => {
       if (component.id !== c.id) {
         c.close();

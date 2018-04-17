@@ -30,6 +30,7 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit {
 
   @Output() allSelected: EventEmitter<any> = new EventEmitter();
   @Output() selected: EventEmitter<any> = new EventEmitter();
+  @Output() closed: EventEmitter<any> = new EventEmitter();
 
   public buttonText: string;
   public isOpen = false;
@@ -130,6 +131,9 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit {
   }
 
   close(): void {
+    if (this.isOpen) {
+      this.closed.emit(this.options);
+    }
     this.isOpen = false;
   }
 
@@ -147,7 +151,7 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit {
     }
 
     if (!this.config.allowMultiple) {
-      this.isOpen = false;
+      this.close();
       this.options.filter(o => o.id !== id).forEach(o => o.isSelected = false);
     }
 
@@ -167,7 +171,9 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit {
     this.isOpen = !this.isOpen;
 
     if (this.isOpen) {
-      this.eaMultiSelectDropdownService.open(this);
+      this.eaMultiSelectDropdownService.closeOthers(this);
+    } else {
+      this.closed.emit(this.options);
     }
   }
 

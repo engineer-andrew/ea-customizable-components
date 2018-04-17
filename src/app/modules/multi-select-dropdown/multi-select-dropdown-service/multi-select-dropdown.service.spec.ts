@@ -15,9 +15,14 @@ describe('', () => {
   });
 
   describe('MultiSelectDropdownService should define a function named', () => {
-    it('open', () => {
+    it('closeAll', () => {
       // assert
-      expect(service.open).toBeDefined();
+      expect(service.closeAll).toBeDefined();
+    });
+
+    it('closeOthers', () => {
+      // assert
+      expect(service.closeOthers).toBeDefined();
     });
 
     it('register', () => {
@@ -44,7 +49,7 @@ describe('', () => {
       spyOn(component, 'close');
 
       // act
-      service.open(component);
+      service.closeOthers(component);
 
       // assert
       expect(first.close).toHaveBeenCalledTimes(1);

@@ -837,6 +837,10 @@ describe('EaMultiSelectDropdownComponent', () => {
   });
 
   describe('close', () => {
+    beforeEach(() => {
+      spyOn(component.closed, 'emit');
+    });
+
     it('should hide the list of options', () => {
       // arrange
       component.isOpen = true;
@@ -847,12 +851,76 @@ describe('EaMultiSelectDropdownComponent', () => {
       // assert
       expect(component.isOpen).toBe(false);
     });
+
+    it('should emit the selected options when the list was open before being closed', () => {
+      // arrange
+      component.isOpen = true;
+      component.options = [
+        <EaMultiSelectDropdownOption>{
+          display: 'Cinderella',
+          id: 'cd',
+          isSelected: true,
+          value: 'Cinderella'
+        },
+        <EaMultiSelectDropdownOption>{
+          display: 'Snow White',
+          id: 'sw',
+          isSelected: false,
+          value: 'Snow White'
+        },
+        <EaMultiSelectDropdownOption>{
+          display: 'Briar Rose',
+          id: 'br',
+          isSelected: false,
+          value: 'Briar Rose'
+        }
+      ];
+
+      // act
+      component.close();
+
+      // assert
+      expect(component.closed.emit).toHaveBeenCalledTimes(1);
+      expect(component.closed.emit).toHaveBeenCalledWith(component.options);
+    });
+
+    it('should not emit the selected options when the list was closed before being closed', () => {
+      // arrange
+      component.isOpen = false;
+      component.options = [
+        <EaMultiSelectDropdownOption>{
+          display: 'Cinderella',
+          id: 'cd',
+          isSelected: true,
+          value: 'Cinderella'
+        },
+        <EaMultiSelectDropdownOption>{
+          display: 'Snow White',
+          id: 'sw',
+          isSelected: false,
+          value: 'Snow White'
+        },
+        <EaMultiSelectDropdownOption>{
+          display: 'Briar Rose',
+          id: 'br',
+          isSelected: false,
+          value: 'Briar Rose'
+        }
+      ];
+
+      // act
+      component.close();
+
+      // assert
+      expect(component.closed.emit).not.toHaveBeenCalled();
+    });
   });
 
   describe('select', () => {
     beforeEach(() => {
       // arrange
       spyOn(component.selected, 'emit');
+      spyOn(component, 'close');
       component.options = defaultOptions;
       updateButtonTextSpy.calls.reset();
     });
@@ -959,16 +1027,15 @@ describe('EaMultiSelectDropdownComponent', () => {
       expect(component.selectAllOption.isSelected).toBe(false);
     });
 
-    it('should hide the list of options when multiple selections are not allowed', () => {
+    it('should close the list of options when multiple selections are not allowed', () => {
       // arrange
-      component.isOpen = true;
       component.config.allowMultiple = false;
 
       // act
       component.select(3);
 
       // assert
-      expect(component.isOpen).toBe(false);
+      expect(component.close).toHaveBeenCalledTimes(1);
     });
 
     it('should de-select all other options when multiple selections are not allowed', () => {
@@ -1072,7 +1139,8 @@ describe('EaMultiSelectDropdownComponent', () => {
   describe('toggle', () => {
     beforeEach(() => {
       // arrange
-      spyOn(multiSelectDropdownService, 'open');
+      spyOn(multiSelectDropdownService, 'closeOthers');
+      spyOn(component.closed, 'emit');
     });
 
     it('should display the list values when the list values were previously not displayed', () => {
@@ -1105,7 +1173,7 @@ describe('EaMultiSelectDropdownComponent', () => {
       component.toggle();
 
       // assert
-      expect(multiSelectDropdownService.open).toHaveBeenCalledTimes(1);
+      expect(multiSelectDropdownService.closeOthers).toHaveBeenCalledTimes(1);
     });
 
     it('should not notify the service that the list has been closed', () => {
@@ -1116,7 +1184,70 @@ describe('EaMultiSelectDropdownComponent', () => {
       component.toggle();
 
       // assert
-      expect(multiSelectDropdownService.open).not.toHaveBeenCalled();
+      expect(multiSelectDropdownService.closeOthers).not.toHaveBeenCalled();
+    });
+
+    it('should emit the selected options when the list has been closed', () => {
+      // arrange
+      component.isOpen = true;
+      component.options = [
+        <EaMultiSelectDropdownOption>{
+          display: 'Cinderella',
+          id: 'cd',
+          isSelected: true,
+          value: 'Cinderella'
+        },
+        <EaMultiSelectDropdownOption>{
+          display: 'Snow White',
+          id: 'sw',
+          isSelected: false,
+          value: 'Snow White'
+        },
+        <EaMultiSelectDropdownOption>{
+          display: 'Briar Rose',
+          id: 'br',
+          isSelected: false,
+          value: 'Briar Rose'
+        }
+      ];
+
+      // act
+      component.toggle();
+
+      // assert
+      expect(component.closed.emit).toHaveBeenCalledTimes(1);
+      expect(component.closed.emit).toHaveBeenCalledWith(component.options);
+    });
+
+    it('should not emit the selected options when the list has been opened', () => {
+      // arrange
+      component.isOpen = false;
+      component.options = [
+        <EaMultiSelectDropdownOption>{
+          display: 'Cinderella',
+          id: 'cd',
+          isSelected: true,
+          value: 'Cinderella'
+        },
+        <EaMultiSelectDropdownOption>{
+          display: 'Snow White',
+          id: 'sw',
+          isSelected: false,
+          value: 'Snow White'
+        },
+        <EaMultiSelectDropdownOption>{
+          display: 'Briar Rose',
+          id: 'br',
+          isSelected: false,
+          value: 'Briar Rose'
+        }
+      ];
+
+      // act
+      component.toggle();
+
+      // assert
+      expect(component.closed.emit).not.toHaveBeenCalled();
     });
   });
 });

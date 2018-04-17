@@ -39,6 +39,10 @@ export class AppComponent {
     {id: 'Shambhala', value: 'Kingdom.Shambhala', display: 'Shambhala', isSelected: false}
   ];
 
+  log($event) {
+    console.log($event);
+  }
+
   select($event) {
     if (!!this.fantasyCreatures.find(c => c.isSelected)) {
 

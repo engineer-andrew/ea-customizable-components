@@ -2,9 +2,11 @@ import { EaMultiSelectDropdownServiceInterface  } from './multi-select-dropdown-
 import { EaMultiSelectDropdownComponent } from '../multi-select-dropdown.module';
 
 export class MockEaMultiSelectDropdownService implements EaMultiSelectDropdownServiceInterface {
-    open(component: EaMultiSelectDropdownComponent) {
-    }
+  closeAll(): void {}
 
-    register(component: EaMultiSelectDropdownComponent) {
-    }
+  closeOthers(component: EaMultiSelectDropdownComponent) {
+  }
+
+  register(component: EaMultiSelectDropdownComponent) {
+  }
 }

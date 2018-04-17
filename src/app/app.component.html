@@ -4,6 +4,7 @@
           <ea-multi-select-dropdown
               [id]="1"
               (selected)="select($event)"
+              (closed)="log($event)"
               [label]="'Princess'"
               [options]="princesses"
               [addSelectAllOption]="true"
@@ -18,7 +19,8 @@
               [options]="fantasyCreatures"
               [addSelectAllOption]="true"
               [selectAllText]="'All Creatures'"
-              [selectAllByDefault]="true">
+              [selectAllByDefault]="true"
+              (closed)="log($event)">
           </ea-multi-select-dropdown>
       </div>
       <div class="col-3 mb-4">

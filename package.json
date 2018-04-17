@@ -2,7 +2,7 @@
   "name": "ea-customizable-components",
   "author": "Engineer Andrew",
   "description": "A library of fully customizable components for Angular 5+",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "scripts": {
     "ng": "ng",

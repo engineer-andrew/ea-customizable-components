@@ -15,32 +15,51 @@ import {
 export class AppComponent {
   @ViewChildren(EaMultiSelectDropdownComponent) dropdowns: QueryList<EaMultiSelectDropdownComponent>;
 
-  constructor(private multiSelectDropdownService: EaMultiSelectDropdownService) {}
-
   public creatures = '';
   public kingdom = '';
   public princess = '';
 
-  public princesses: EaMultiSelectDropdownOption[] = [
-    {id: 'cinderella', value: 'Princess.Cinderella', display: 'Cinderella', isSelected: false},
-    {id: 'snow-white', value: 'Princess.Snow-White', display: 'Snow White', isSelected: false},
-    {id: 'briar-rose', value: 'Princess.Briar-Rose', display: 'Sleeping Beauty', isSelected: false}
-  ];
+  public princesses: EaMultiSelectDropdownOption[];
 
-  public fantasyCreatures: EaMultiSelectDropdownOption[] = [
-    {id: 'fairies', value: 'Creatures.Fairies', display: 'Fairies', isSelected: false},
-    {id: 'trolls', value: 'Creatures.Trolls', display: 'Trolls', isSelected: false},
-    {id: 'ogres', value: 'Creatures.Ogres', display: 'Ogres', isSelected: false}
-  ];
+  public fantasyCreatures: EaMultiSelectDropdownOption[];
 
-  public kingdoms: EaMultiSelectDropdownOption[] = [
-    {id: 'westeros', value: 'Kingdom.Westeros', display: 'Westeros', isSelected: false},
-    {id: 'agartha', value: 'Kingdom.Agartha', display: 'Agartha', isSelected: false},
-    {id: 'Shambhala', value: 'Kingdom.Shambhala', display: 'Shambhala', isSelected: false}
-  ];
+  public kingdoms: EaMultiSelectDropdownOption[];
+
+  constructor(private multiSelectDropdownService: EaMultiSelectDropdownService) {
+    this.princesses = [
+      {id: 'cinderella', value: 'Princess.Cinderella', display: 'Cinderella', isSelected: false},
+      {id: 'snow-white', value: 'Princess.Snow-White', display: 'Snow White', isSelected: false},
+      {id: 'briar-rose', value: 'Princess.Briar-Rose', display: 'Sleeping Beauty', isSelected: false}
+    ];
+
+    this.fantasyCreatures = [
+      {id: 'fairies', value: 'Creatures.Fairies', display: 'Fairies', isSelected: false},
+      {id: 'trolls', value: 'Creatures.Trolls', display: 'Trolls', isSelected: false},
+      {id: 'ogres', value: 'Creatures.Ogres', display: 'Ogres', isSelected: false}
+    ];
+
+    this.kingdoms = [
+      {id: 'westeros', value: 'Kingdom.Westeros', display: 'Westeros', isSelected: false},
+      {id: 'agartha', value: 'Kingdom.Agartha', display: 'Agartha', isSelected: false},
+      {id: 'Shambhala', value: 'Kingdom.Shambhala', display: 'Shambhala', isSelected: false}
+    ];
+
+    setTimeout(() => {
+      this.princesses = [
+        {id: 'ariel', value: 'Princess.Ariel', display: 'Ariel', isSelected: false},
+        {id: 'tiana', value: 'Princess.Tiana', display: 'Tiana', isSelected: false},
+        {id: 'anna', value: 'Princess.Anna', display: 'Anna', isSelected: false}
+      ];
+
+      this.fantasyCreatures = [
+        {id: 'elves', value: 'Creatures.Elves', display: 'Elves', isSelected: false},
+        {id: 'orcs', value: 'Creatures.Orcs', display: 'Orcs', isSelected: false},
+        {id: 'gnomes', value: 'Creatures.Gnomes', display: 'Gnomes', isSelected: false}
+      ];
+    }, 5000);
+  }
 
   log($event) {
-    console.log($event);
   }
 
   select($event) {

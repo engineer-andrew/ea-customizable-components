@@ -1,4 +1,4 @@
-import { Component, Input, AfterContentInit, Output, EventEmitter } from '@angular/core';
+import { Component, Input, AfterContentInit, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { EaMultiSelectDropdownConfig, EaMultiSelectDropdownOption } from '../models';
 import { EaMultiSelectDropdownService } from '../multi-select-dropdown-service/multi-select-dropdown.service';
 
@@ -7,7 +7,7 @@ import { EaMultiSelectDropdownService } from '../multi-select-dropdown-service/m
   templateUrl: './multi-select-dropdown.component.html',
   styles: ['.ea-multi-select-dropdown-container > label { width: 100%; }']
 })
-export class EaMultiSelectDropdownComponent implements AfterContentInit {
+export class EaMultiSelectDropdownComponent implements AfterContentInit, OnChanges {
   @Input() addSelectAllOption: boolean;
   @Input() allowMultiple: boolean;
   @Input() buttonClasses: string[] = [];
@@ -63,13 +63,19 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit {
       };
 
       if (this.config.selectAllByDefault) {
-        this.options.forEach(o => o.isSelected = true);
+        this.selectAll();
       }
     }
 
     this.updateButtonText();
 
     this.eaMultiSelectDropdownService.register(this);
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (this.config.addSelectAllOption && this.config.selectAllByDefault) {
+      this.selectAll();
+    }
   }
 
   buildConfig(): void {
@@ -161,8 +167,8 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit {
   }
 
   selectAll(): void {
-    this.selectAllOption.isSelected = !this.selectAllOption.isSelected;
-    this.options.forEach(o => o.isSelected = this.selectAllOption.isSelected);
+    this.selectAllOption.isSelected = true;
+    this.options.forEach(o => o.isSelected = true);
     this.updateButtonText();
     this.allSelected.emit(this.selectAllOption);
   }
@@ -175,6 +181,13 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit {
     } else {
       this.closed.emit(this.options);
     }
+  }
+
+  toggleAll(): void {
+    this.selectAllOption.isSelected = !this.selectAllOption.isSelected;
+    this.options.forEach(o => o.isSelected = this.selectAllOption.isSelected);
+    this.updateButtonText();
+    this.allSelected.emit(this.selectAllOption);
   }
 
   updateButtonText(): void {

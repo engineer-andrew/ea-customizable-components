@@ -123,7 +123,7 @@ describe('EaMultiSelectDropdownComponent', () => {
     expect(debugElements[0].nativeElement.textContent).toContain('(Select All)');
   });
 
-  it('should invoke the selectAll function when the select all item is clicked', () => {
+  it('should invoke the toggleAll function when the select all item is clicked', () => {
     // arrange
     component.config.addSelectAllOption = true;
     component.options = [
@@ -132,7 +132,7 @@ describe('EaMultiSelectDropdownComponent', () => {
       {id: 3, display: 'Third Option', isSelected: false, value: '[Third].[Option]'},
     ];
     component.isOpen = true;
-    spyOn(component, 'selectAll');
+    spyOn(component, 'toggleAll');
     spyOn(component, 'select');
     fixture.detectChanges();
     const options = fixture.debugElement.queryAll(By.css('.option-list > div'));
@@ -141,7 +141,7 @@ describe('EaMultiSelectDropdownComponent', () => {
     options[0].triggerEventHandler('click', null);
 
     // assert
-    expect(component.selectAll).toHaveBeenCalledTimes(1);
+    expect(component.toggleAll).toHaveBeenCalledTimes(1);
     expect(component.select).not.toHaveBeenCalled();
   });
 

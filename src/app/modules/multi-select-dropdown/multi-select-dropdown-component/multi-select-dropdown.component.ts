@@ -16,6 +16,7 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit, OnChang
   @Input() buttonWrapperClasses: string[];
   @Input() checkedClasses: string[];
   @Input() containerClasses: string[];
+  @Input() emptyText: string;
   @Input() id: string | number;
   @Input() label: string;
   @Input() listClasses: string[] = [];
@@ -50,7 +51,7 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit, OnChang
           this.config.listClasses.push(this.config.buttonClasses.filter((item) => typeof item === 'string' && item.indexOf('col') > -1)[0]);
     }
 
-    if (!this.config.allowMultiple) {
+    if (!this.config.allowMultiple || this.config.options.length === 0) {
       this.config.addSelectAllOption = false;
     }
 
@@ -111,6 +112,10 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit, OnChang
       (!this.config.containerClasses || this.config.containerClasses.length === 0) ?
       [] : this.config.containerClasses : this.containerClasses;
 
+    this.config.emptyText = (this.emptyText === null || this.emptyText === undefined) ?
+      (this.config.emptyText === null || this.config.emptyText === undefined) ?
+      null : this.config.emptyText : this.emptyText;
+
     this.config.listClasses = (!this.listClasses || this.listClasses.length === 0) ?
       (!this.config.listClasses || this.config.listClasses.length === 0) ?
       [] : this.config.listClasses : this.listClasses;
@@ -119,6 +124,9 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit, OnChang
       (!this.config.optionClasses || this.config.optionClasses.length === 0) ?
       ['multi-select-option'] : this.config.optionClasses : this.optionClasses;
 
+    this.config.options = (!this.options || this.options.length === 0) ?
+      (!this.config.options || this.config.options.length === 0) ?
+      [] : this.config.options : this.options;
     this.config.selectAllByDefault = (this.selectAllByDefault === null || this.selectAllByDefault === undefined) ?
       (this.config.selectAllByDefault === null || this.config.selectAllByDefault === undefined) ?
       false : this.config.selectAllByDefault : this.selectAllByDefault;
@@ -138,18 +146,18 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit, OnChang
 
   close(): void {
     if (this.isOpen) {
-      this.closed.emit(this.options);
+      this.closed.emit(this.config.options);
     }
     this.isOpen = false;
   }
 
   select(id: number | string): void {
-    const option = this.options.find(o => o.id === id);
+    const option = this.config.options.find(o => o.id === id);
     option.isSelected = !option.isSelected;
 
     if (this.config.addSelectAllOption) {
-      const selectedOptions = this.options.filter(o => o.isSelected).length;
-      if (selectedOptions === this.options.length) {
+      const selectedOptions = this.config.options.filter(o => o.isSelected).length;
+      if (selectedOptions === this.config.options.length) {
         this.selectAllOption.isSelected = true;
       } else {
         this.selectAllOption.isSelected = false;
@@ -158,7 +166,7 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit, OnChang
 
     if (!this.config.allowMultiple) {
       this.close();
-      this.options.filter(o => o.id !== id).forEach(o => o.isSelected = false);
+      this.config.options.filter(o => o.id !== id).forEach(o => o.isSelected = false);
     }
 
     this.updateButtonText();
@@ -168,36 +176,46 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit, OnChang
 
   selectAll(): void {
     this.selectAllOption.isSelected = true;
-    this.options.forEach(o => o.isSelected = true);
+    this.config.options.forEach(o => o.isSelected = true);
     this.updateButtonText();
     this.allSelected.emit(this.selectAllOption);
   }
 
   toggle(): void {
+    if (this.config.options.length === 0) {
+      this.eaMultiSelectDropdownService.closeOthers(this);
+      return;
+    }
+
     this.isOpen = !this.isOpen;
 
     if (this.isOpen) {
       this.eaMultiSelectDropdownService.closeOthers(this);
     } else {
-      this.closed.emit(this.options);
+      this.closed.emit(this.config.options);
     }
   }
 
   toggleAll(): void {
     this.selectAllOption.isSelected = !this.selectAllOption.isSelected;
-    this.options.forEach(o => o.isSelected = this.selectAllOption.isSelected);
+    this.config.options.forEach(o => o.isSelected = this.selectAllOption.isSelected);
     this.updateButtonText();
     this.allSelected.emit(this.selectAllOption);
   }
 
   updateButtonText(): void {
-    const selectedOptions = this.options.filter(o => o.isSelected);
+    if (this.config.options.length === 0 && !!this.config.emptyText) {
+      this.buttonText = this.config.emptyText;
+      return;
+    }
+
+    const selectedOptions = this.config.options.filter(o => o.isSelected);
     if (selectedOptions.length === 0) {
       this.buttonText = '';
       return;
     }
 
-    if (selectedOptions.length === this.options.length) {
+    if (selectedOptions.length === this.config.options.length) {
       this.buttonText = 'All';
       return;
     }

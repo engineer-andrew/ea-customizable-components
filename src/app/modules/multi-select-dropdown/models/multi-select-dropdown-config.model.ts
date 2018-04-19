@@ -9,6 +9,7 @@ export interface EaMultiSelectDropdownConfig {
     buttonWrapperClasses?: string[];
     checkedClasses?: string[];
     containerClasses?: string[];
+    emptyText?: string;
     id?: string | number;
     labelText?: string;
     listClasses?: string[];

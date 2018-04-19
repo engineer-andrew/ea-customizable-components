@@ -34,6 +34,17 @@
               [selectAllByDefault]="true">
           </ea-multi-select-dropdown>
       </div>
+      <div class="col-3 mb-4">
+        <ea-multi-select-dropdown
+            [id]="4"
+            (selected)="select($event)"
+            [label]="'Empty'"
+            [options]="empty"
+            [addSelectAllOption]="true"
+            [selectAllByDefault]="true"
+            [emptyText]="'Nothing to see here'">
+        </ea-multi-select-dropdown>
+    </div>
   </div>
   <div class="row">
       Princess {{princess}} lives in {{kingdom}} with lots of creatures, like {{creatures}}.

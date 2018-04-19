@@ -31,7 +31,7 @@ To use the multi-select-dropdown, follow these steps:
 <span style="border-radius: .25em; color: white; padding: .5em; margin-left: .5em; background-color: grey;">Boolean</span>
 <span style="border-radius: .25em; color: white; padding: .5em; margin-left: .5em; background-color: green;">Optional</span>
 
-Injects a special option in the dropdown to allow the user to select all options with one click. The default text displayed is (Select All), but can be configured using the `selectAllText` option described below. This option will be completely ignored if the `allowMultiple` is set to false.
+Injects a special option in the dropdown to allow the user to select all options with one click. The default text displayed is (Select All), but can be configured using the `selectAllText` option described below. This option will be completely ignored if the `allowMultiple` is set to false or there are no options provided.
 
 Since: 0.0.1
 
@@ -107,6 +107,16 @@ Since: 0.0.1
 
 Default Value: None
 
+<h5 style="font-weight: 700; display: inline;">label</h5>
+<span style="border-radius: .25em; color: white; padding: .5em; margin-left: .5em; background-color: red;">String</span>
+<span style="border-radius: .25em; color: white; padding: .5em; margin-left: .5em; background-color: green;">Optional</span>
+
+Allows you to specify the text that will appear on the button when there are no options to select.
+
+Since: 1.0.4
+
+Default Value: `&nbsp;`
+
 <h5 style="font-weight: 700; display: inline;">id</h5>
 <span style="border-radius: .25em; color: white; padding: .5em; margin-left: .5em; background-color: red;">String</span> or <span style="border-radius: .25em; color: white; padding: .5em; margin-left: .5em; background-color: blue;">Number</span>
 <span style="border-radius: .25em; color: white; padding: .5em; margin-left: .5em; background-color: green;">Optional</span>/<span style="border-radius: .25em; color: red; padding: .5em; margin-left: .5em; background-color: yellow;">Required</span>
@@ -132,6 +142,24 @@ Default Value: None
 <span style="border-radius: .25em; color: white; padding: .5em; margin-left: .5em; background-color: green;">Optional</span>
 
 Allows you to specify any classes that should be applied to the &lt;div&gt; that wraps the options (the part that shows/hides when the button is clicked).
+
+Since: 0.0.1
+
+Default Value: None
+
+<h5 style="font-weight: 700; display: inline;">options</h5>
+<span style="border-radius: .25em; color: white; padding: .5em; margin-left: .5em; background-color: blue;">EaMultiSelectDropdownOption Array</span>
+<span style="border-radius: .25em; color: white; padding: .5em; margin-left: .5em; background-color: green;">Optional</span>
+
+The values that are displayed for the user to select. Each object provided ***must*** conform to the EaMultiSelectDropdownOption interface. For reference, that interface looks like this:
+```
+{
+  display: string;
+  id: number | string;
+  isSelected: boolean;
+  value: string;
+}
+```
 
 Since: 0.0.1
 
@@ -199,6 +227,7 @@ In lieu of specifying each of these options individually, it is possible to use 
     buttonWrapperClasses?: string[];
     checkedClasses?: string[];
     containerClasses?: string[];
+    emptyText?: string;
     id?: string | number;
     labelText?: string;
     listClasses?: string[];

@@ -25,6 +25,8 @@ export class AppComponent {
 
   public kingdoms: EaMultiSelectDropdownOption[];
 
+  public empty: EaMultiSelectDropdownOption[] = [];
+
   constructor(private multiSelectDropdownService: EaMultiSelectDropdownService) {
     this.princesses = [
       {id: 'cinderella', value: 'Princess.Cinderella', display: 'Cinderella', isSelected: false},

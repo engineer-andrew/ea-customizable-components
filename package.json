@@ -1,9 +1,16 @@
 {
   "name": "ea-customizable-components",
-  "author": "Engineer Andrew",
+  "author": "Andrew Webster",
   "description": "A library of fully customizable components for Angular 5+",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/engineer-andrew/ea-customizable-components.git"
+  },
   "version": "1.0.5",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/engineer-andrew/ea-customizable-components/issues"
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

@@ -20,7 +20,8 @@
               [addSelectAllOption]="true"
               [selectAllText]="'All Creatures'"
               [selectAllByDefault]="true"
-              (closed)="log($event)">
+              (closed)="log($event)"
+              [emptyText]="'Please select a princess'">
           </ea-multi-select-dropdown>
       </div>
       <div class="col-3 mb-4">

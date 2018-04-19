@@ -12,7 +12,7 @@
       <i [ngClass]="(selectAllOption.isSelected) ? config.checkedClasses : config.uncheckedClasses"></i>
       {{selectAllOption.display}}
     </div>
-    <div [ngClass]="config.optionClasses" *ngFor="let option of config.options" (click)="select(option.id)">
+    <div [ngClass]="config.optionClasses" *ngFor="let option of options" (click)="select(option.id)">
       <i [ngClass]="(option.isSelected) ? config.checkedClasses : config.uncheckedClasses"></i>
       {{option.display}}
     </div>

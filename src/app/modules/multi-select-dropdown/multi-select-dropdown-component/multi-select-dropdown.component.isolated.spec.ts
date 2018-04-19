@@ -108,7 +108,7 @@ describe('EaMultiSelectDropdownComponent', () => {
       // arrange
       component.config.addSelectAllOption = true;
       component.config.selectAllValue = 'select-all-value';
-      component.config.options = [
+      component.options = [
         {display: 'First Option', id: 'first-option', isSelected: false, value: '[First].[Option]'},
         {display: 'Second Option', id: 'second-option', isSelected: false, value: '[Second].[Option]'},
         {display: 'Third Option', id: 'third-option', isSelected: false, value: '[Third].[Option]'}
@@ -130,7 +130,7 @@ describe('EaMultiSelectDropdownComponent', () => {
       // arrange
       component.config.addSelectAllOption = true;
       component.config.selectAllText = 'All';
-      component.config.options = [
+      component.options = [
         {display: 'First Option', id: 'first-option', isSelected: false, value: '[First].[Option]'},
         {display: 'Second Option', id: 'second-option', isSelected: false, value: '[Second].[Option]'},
         {display: 'Third Option', id: 'third-option', isSelected: false, value: '[Third].[Option]'}
@@ -151,7 +151,7 @@ describe('EaMultiSelectDropdownComponent', () => {
     it('should build the select all option when the select all option is included and all options should be selected by default and there are options to select', () => {
       // arrange
       component.config.addSelectAllOption = true;
-      component.config.options = [
+      component.options = [
         {display: 'First Option', id: 'first-option', isSelected: false, value: '[First].[Option]'},
         {display: 'Second Option', id: 'second-option', isSelected: false, value: '[Second].[Option]'},
         {display: 'Third Option', id: 'third-option', isSelected: false, value: '[Third].[Option]'}
@@ -174,7 +174,7 @@ describe('EaMultiSelectDropdownComponent', () => {
       // arrange
       component.config.addSelectAllOption = true;
       component.config.selectAllByDefault = true;
-      component.config.options = [
+      component.options = [
         {display: 'First Option', id: 'first-option', isSelected: false, value: '[First].[Option]'},
         {display: 'Second Option', id: 'second-option', isSelected: false, value: '[Second].[Option]'},
         {display: 'Third Option', id: 'third-option', isSelected: false, value: '[Third].[Option]'}
@@ -215,7 +215,7 @@ describe('EaMultiSelectDropdownComponent', () => {
     it('should not build the select all option when there are no options to select', () => {
       // arrange
       component.config.addSelectAllOption = true;
-      component.config.options = [];
+      component.options = [];
       component.config.selectAllByDefault = true;
 
       // act
@@ -708,67 +708,6 @@ describe('EaMultiSelectDropdownComponent', () => {
       });
     });
 
-    describe('should set the options', () => {
-      it('to the value provided separately when there is a value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          options: [
-            {display: 'First Config Option', id: 'first-config-option', isSelected: false, value: '[First].[Config].[Option]'},
-            {display: 'Second Config Option', id: 'second-config-option', isSelected: false, value: '[Second].[Config].[Option]'},
-            {display: 'Third Config Option', id: 'third-config-option', isSelected: false, value: '[Third].[Config].[Option]'}
-          ]
-        };
-        component.config.options = [
-          {display: 'First Option', id: 'first-option', isSelected: false, value: '[First].[Option]'},
-          {display: 'Second Option', id: 'second-option', isSelected: false, value: '[Second].[Option]'},
-          {display: 'Third Option', id: 'third-option', isSelected: false, value: '[Third].[Option]'}
-        ];
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.options).toEqual([
-          {display: 'First Option', id: 'first-option', isSelected: false, value: '[First].[Option]'},
-          {display: 'Second Option', id: 'second-option', isSelected: false, value: '[Second].[Option]'},
-          {display: 'Third Option', id: 'third-option', isSelected: false, value: '[Third].[Option]'}
-        ]);
-      });
-
-      it('to the value provided on the config object when there is no value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          options: [
-            {display: 'First Config Option', id: 'first-config-option', isSelected: false, value: '[First].[Config].[Option]'},
-            {display: 'Second Config Option', id: 'second-config-option', isSelected: false, value: '[Second].[Config].[Option]'},
-            {display: 'Third Config Option', id: 'third-config-option', isSelected: false, value: '[Third].[Config].[Option]'}
-          ]
-        };
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.options).toEqual([
-          {display: 'First Config Option', id: 'first-config-option', isSelected: false, value: '[First].[Config].[Option]'},
-          {display: 'Second Config Option', id: 'second-config-option', isSelected: false, value: '[Second].[Config].[Option]'},
-          {display: 'Third Config Option', id: 'third-config-option', isSelected: false, value: '[Third].[Config].[Option]'}
-        ]);
-      });
-
-      it('to an empty set when there is no value provided on the config or separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {};
-        component.config.options = undefined;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.options).toEqual([]);
-      });
-    });
-
     describe('should set the option classes value', () => {
       it('to the value provided separately when there is a value provided separately', () => {
         // arrange
@@ -998,7 +937,7 @@ describe('EaMultiSelectDropdownComponent', () => {
     it('should emit the selected options when the list was open before being closed', () => {
       // arrange
       component.isOpen = true;
-      component.config.options = [
+      component.options = [
         <EaMultiSelectDropdownOption>{
           display: 'Cinderella',
           id: 'cd',
@@ -1024,13 +963,13 @@ describe('EaMultiSelectDropdownComponent', () => {
 
       // assert
       expect(component.closed.emit).toHaveBeenCalledTimes(1);
-      expect(component.closed.emit).toHaveBeenCalledWith(component.config.options);
+      expect(component.closed.emit).toHaveBeenCalledWith(component.options);
     });
 
     it('should not emit the selected options when the list was closed before being closed', () => {
       // arrange
       component.isOpen = false;
-      component.config.options = [
+      component.options = [
         <EaMultiSelectDropdownOption>{
           display: 'Cinderella',
           id: 'cd',
@@ -1064,7 +1003,7 @@ describe('EaMultiSelectDropdownComponent', () => {
       // arrange
       spyOn(component.selected, 'emit');
       spyOn(component, 'close');
-      component.config.options = defaultOptions;
+      component.options = defaultOptions;
       updateButtonTextSpy.calls.reset();
     });
 
@@ -1073,22 +1012,22 @@ describe('EaMultiSelectDropdownComponent', () => {
       component.select(3);
 
       // assert
-      expect(component.config.options[0].isSelected).toBe(false);
-      expect(component.config.options[1].isSelected).toBe(false);
-      expect(component.config.options[2].isSelected).toBe(true);
+      expect(component.options[0].isSelected).toBe(false);
+      expect(component.options[1].isSelected).toBe(false);
+      expect(component.options[2].isSelected).toBe(true);
     });
 
     it('should de-select the option when the option was previously selected', () => {
       // arrange
-      component.config.options[0].isSelected = true;
-      component.config.options[1].isSelected = true;
-      component.config.options[2].isSelected = true;
+      component.options[0].isSelected = true;
+      component.options[1].isSelected = true;
+      component.options[2].isSelected = true;
 
       // act
       component.select(2);
 
       // assert
-      expect(component.config.options[1].isSelected).toBe(false);
+      expect(component.options[1].isSelected).toBe(false);
     });
 
     it('should emit the selected option', () => {
@@ -1122,8 +1061,8 @@ describe('EaMultiSelectDropdownComponent', () => {
           isSelected: false,
           value: 'Select-All'
         };
-        component.config.options[0].isSelected = true;
-        component.config.options[1].isSelected = true;
+        component.options[0].isSelected = true;
+        component.options[1].isSelected = true;
 
         // act
         component.select(3);
@@ -1142,9 +1081,9 @@ describe('EaMultiSelectDropdownComponent', () => {
         isSelected: true,
         value: 'Select-All'
       };
-      component.config.options[0].isSelected = true;
-      component.config.options[1].isSelected = true;
-      component.config.options[2].isSelected = true;
+      component.options[0].isSelected = true;
+      component.options[1].isSelected = true;
+      component.options[2].isSelected = true;
 
       // act
       component.select(3);
@@ -1160,8 +1099,8 @@ describe('EaMultiSelectDropdownComponent', () => {
         id: 'select-all',
         isSelected: false
       };
-      component.config.options[0].isSelected = true;
-      component.config.options[1].isSelected = true;
+      component.options[0].isSelected = true;
+      component.options[1].isSelected = true;
 
       // act
       component.select(3);
@@ -1184,16 +1123,16 @@ describe('EaMultiSelectDropdownComponent', () => {
     it('should de-select all other options when multiple selections are not allowed', () => {
       // arrange
       component.config.allowMultiple = false;
-      component.config.options[0].isSelected = true;
-      component.config.options[2].isSelected = true;
+      component.options[0].isSelected = true;
+      component.options[2].isSelected = true;
 
       // act
       component.select(2);
 
       // assert
-      expect(component.config.options[0].isSelected).toBe(false);
-      expect(component.config.options[1].isSelected).toBe(true);
-      expect(component.config.options[2].isSelected).toBe(false);
+      expect(component.options[0].isSelected).toBe(false);
+      expect(component.options[1].isSelected).toBe(true);
+      expect(component.options[2].isSelected).toBe(false);
     });
   });
 
@@ -1206,7 +1145,7 @@ describe('EaMultiSelectDropdownComponent', () => {
         isSelected: false,
         value: 'Select-All'
       };
-      component.config.options = defaultOptions;
+      component.options = defaultOptions;
       updateButtonTextSpy.calls.reset();
 
       spyOn(component.allSelected, 'emit');
@@ -1229,7 +1168,7 @@ describe('EaMultiSelectDropdownComponent', () => {
     it('should indicate that every option has been selected when the Select All indicator is not already showing as selected', () => {
       component.selectAll();
 
-      component.config.options.forEach(o => {
+      component.options.forEach(o => {
         expect(o.isSelected).toBe(true);
       });
     });
@@ -1239,7 +1178,7 @@ describe('EaMultiSelectDropdownComponent', () => {
 
       component.selectAll();
 
-      component.config.options.forEach(o => {
+      component.options.forEach(o => {
         expect(o.isSelected).toBe(true);
       });
     });
@@ -1267,7 +1206,7 @@ describe('EaMultiSelectDropdownComponent', () => {
       spyOn(multiSelectDropdownService, 'closeOthers');
       spyOn(component.closed, 'emit');
 
-      component.config.options = [
+      component.options = [
         {display: 'First Option', id: 'first-option', isSelected: true, value: '[First].[Option]'}
       ];
     });
@@ -1286,7 +1225,7 @@ describe('EaMultiSelectDropdownComponent', () => {
     it('should not display the list values when there are no values to display', () => {
       // arrange
       component.isOpen = false;
-      component.config.options = [];
+      component.options = [];
 
       // act
       component.toggle();
@@ -1297,7 +1236,7 @@ describe('EaMultiSelectDropdownComponent', () => {
 
     it('should notify the service to close other lists when there are no values to display', () => {
       component.isOpen = false;
-      component.config.options = [];
+      component.options = [];
 
       component.toggle();
 
@@ -1340,7 +1279,7 @@ describe('EaMultiSelectDropdownComponent', () => {
     it('should emit the selected options when the list has been closed', () => {
       // arrange
       component.isOpen = true;
-      component.config.options = [
+      component.options = [
         <EaMultiSelectDropdownOption>{
           display: 'Cinderella',
           id: 'cd',
@@ -1366,13 +1305,13 @@ describe('EaMultiSelectDropdownComponent', () => {
 
       // assert
       expect(component.closed.emit).toHaveBeenCalledTimes(1);
-      expect(component.closed.emit).toHaveBeenCalledWith(component.config.options);
+      expect(component.closed.emit).toHaveBeenCalledWith(component.options);
     });
 
     it('should not emit the selected options when the list has been opened', () => {
       // arrange
       component.isOpen = false;
-      component.config.options = [
+      component.options = [
         <EaMultiSelectDropdownOption>{
           display: 'Cinderella',
           id: 'cd',
@@ -1410,7 +1349,7 @@ describe('EaMultiSelectDropdownComponent', () => {
         isSelected: false,
         value: 'Select-All'
       };
-      component.config.options = defaultOptions;
+      component.options = defaultOptions;
       updateButtonTextSpy.calls.reset();
 
       spyOn(component.allSelected, 'emit');
@@ -1440,7 +1379,7 @@ describe('EaMultiSelectDropdownComponent', () => {
       component.toggleAll();
 
       // assert
-      component.config.options.forEach(o => {
+      component.options.forEach(o => {
         expect(o.isSelected).toBe(true);
       });
     });
@@ -1448,7 +1387,7 @@ describe('EaMultiSelectDropdownComponent', () => {
     it('should de-select all options when the select all option is de-selected', () => {
       // arrange
       component.selectAllOption.isSelected = true;
-      component.config.options.forEach(o => {
+      component.options.forEach(o => {
         o.isSelected = true;
       });
 
@@ -1456,7 +1395,7 @@ describe('EaMultiSelectDropdownComponent', () => {
       component.toggleAll();
 
       // assert
-      component.config.options.forEach(o => {
+      component.options.forEach(o => {
         expect(o.isSelected).toBe(false);
       });
     });
@@ -1505,7 +1444,7 @@ describe('EaMultiSelectDropdownComponent', () => {
     fixture = TestBed.createComponent(EaMultiSelectDropdownComponent);
     component = fixture.componentInstance;
 
-    component.config.options = [
+    component.options = [
       { display: 'First Option', id: 1, isSelected: true, value: '[First].[Option]' },
       { display: 'Second Option', id: 2, isSelected: false, value: '[Second].[Option]' },
       { display: 'Third Option', id: 3, isSelected: true, value: '[Third].[Option]' }
@@ -1533,7 +1472,7 @@ describe('EaMultiSelectDropdownComponent', () => {
 
     it('should show the selected value when only one value is selected', () => {
       // arrange
-      component.config.options[0].isSelected = false;
+      component.options[0].isSelected = false;
 
       // act
       component.updateButtonText();
@@ -1544,7 +1483,7 @@ describe('EaMultiSelectDropdownComponent', () => {
 
     it('should show \'All\' when all options are selected', () => {
       // arrange
-      component.config.options[1].isSelected = true;
+      component.options[1].isSelected = true;
 
       // act
       component.updateButtonText();
@@ -1555,7 +1494,7 @@ describe('EaMultiSelectDropdownComponent', () => {
 
     it('should show the provided empty text when there are no values to select and there is an empty text provided', () => {
       component.config.emptyText = 'Bummer';
-      component.config.options = [];
+      component.options = [];
 
       component.updateButtonText();
 
@@ -1563,7 +1502,7 @@ describe('EaMultiSelectDropdownComponent', () => {
     });
 
     it('should be blank when there are no values to select and there is no empty text provided', () => {
-      component.config.options = [];
+      component.options = [];
 
       component.updateButtonText();
 
@@ -1572,8 +1511,8 @@ describe('EaMultiSelectDropdownComponent', () => {
 
     it('should be blank when no values are selected', () => {
       // arrange
-      component.config.options[0].isSelected = false;
-      component.config.options[2].isSelected = false;
+      component.options[0].isSelected = false;
+      component.options[2].isSelected = false;
 
       // act
       component.updateButtonText();

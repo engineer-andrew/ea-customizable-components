@@ -47,17 +47,14 @@ export class AppComponent {
     ];
 
     setTimeout(() => {
+      console.log('timeout');
       this.princesses = [
         {id: 'ariel', value: 'Princess.Ariel', display: 'Ariel', isSelected: false},
         {id: 'tiana', value: 'Princess.Tiana', display: 'Tiana', isSelected: false},
         {id: 'anna', value: 'Princess.Anna', display: 'Anna', isSelected: false}
       ];
 
-      this.fantasyCreatures = [
-        {id: 'elves', value: 'Creatures.Elves', display: 'Elves', isSelected: false},
-        {id: 'orcs', value: 'Creatures.Orcs', display: 'Orcs', isSelected: false},
-        {id: 'gnomes', value: 'Creatures.Gnomes', display: 'Gnomes', isSelected: false}
-      ];
+      this.fantasyCreatures = [];
     }, 5000);
   }
 

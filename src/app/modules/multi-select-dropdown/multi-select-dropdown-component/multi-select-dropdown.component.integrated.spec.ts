@@ -30,7 +30,7 @@ describe('EaMultiSelectDropdownComponent', () => {
     spyOn(component, 'updateButtonText');
     fixture.detectChanges();
 
-    component.config.options = [
+    component.options = [
       { display: 'First Option', id: 1, isSelected: false, value: '[First].[Option]' },
       { display: 'Second Option', id: 2, isSelected: false, value: '[Second].[Option]' },
       { display: 'Third Option', id: 3, isSelected: false, value: '[Third].[Option]' }
@@ -126,7 +126,7 @@ describe('EaMultiSelectDropdownComponent', () => {
   it('should invoke the toggleAll function when the select all item is clicked', () => {
     // arrange
     component.config.addSelectAllOption = true;
-    component.config.options = [
+    component.options = [
       {id: 1, display: 'First Option', isSelected: false, value: '[First].[Option]'},
       {id: 2, display: 'Second Option', isSelected: false, value: '[Second].[Option]'},
       {id: 3, display: 'Third Option', isSelected: false, value: '[Third].[Option]'},
@@ -160,7 +160,7 @@ describe('EaMultiSelectDropdownComponent', () => {
 
   it('should display the value of each option in the list', () => {
     // arrange
-    component.config.options = [
+    component.options = [
       {id: 1, display: 'First Option', isSelected: false, value: '[First].[Option]'},
       {id: 2, display: 'Second Option', isSelected: false, value: '[Second].[Option]'},
       {id: 3, display: 'Third Option', isSelected: false, value: '[Third].[Option]'},
@@ -179,7 +179,7 @@ describe('EaMultiSelectDropdownComponent', () => {
 
   it('should invoke the select function when an item is clicked', () => {
     // arrange
-    component.config.options = [
+    component.options = [
       {id: 1, display: 'First Option', isSelected: false, value: '[First].[Option]'},
       {id: 2, display: 'Second Option', isSelected: false, value: '[Second].[Option]'},
       {id: 3, display: 'Third Option', isSelected: false, value: '[Third].[Option]'},

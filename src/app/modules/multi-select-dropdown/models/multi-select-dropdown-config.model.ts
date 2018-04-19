@@ -14,7 +14,6 @@ export interface EaMultiSelectDropdownConfig {
     labelText?: string;
     listClasses?: string[];
     optionClasses?: string[];
-    options?: EaMultiSelectDropdownOption[];
     selectAllByDefault?: boolean;
     selectAllText?: string;
     selectAllValue?: string;

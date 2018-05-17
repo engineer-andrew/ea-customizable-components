@@ -109,6 +109,10 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit, OnChang
     }
 
     if (!!changes.options) {
+      if (changes.options.currentValue.length === 1) {
+        this.config.addSelectAllOption = false;
+      }
+
       this.optionDiffers = {};
       this.options.forEach(option => this.optionDiffers[option.id] = this.differs.find(option).create());
     }

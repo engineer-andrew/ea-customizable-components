@@ -341,15 +341,27 @@ describe('EaMultiSelectDropdownComponent', () => {
       spyOn(component, 'selectAll');
     });
 
-    it('should select all options when the select all option is included and all options should be selected by default', () => {
-      // arrange
+    it('should remove the select all option when there is only option to select', () => {
       component.config.addSelectAllOption = true;
       component.config.selectAllByDefault = true;
 
-      // act
+      component.ngOnChanges(<SimpleChanges>{
+        'options': <SimpleChange>{
+          currentValue: [{ display: 'First Option', id: 1, isSelected: false, value: '[First].[Option]' }],
+          previousValue: defaultOptions,
+          firstChange: false
+        }
+      });
+
+      expect(component.config.addSelectAllOption).toBe(false);
+    });
+
+    it('should select all options when the select all option is included and all options should be selected by default', () => {
+      component.config.addSelectAllOption = true;
+      component.config.selectAllByDefault = true;
+
       component.ngOnChanges(<SimpleChanges>{});
 
-      // assert
       expect(component.selectAll).toHaveBeenCalledTimes(1);
     });
 

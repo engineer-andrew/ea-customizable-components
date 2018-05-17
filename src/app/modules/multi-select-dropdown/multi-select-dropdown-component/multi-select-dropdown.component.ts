@@ -51,7 +51,7 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit, OnChang
           this.config.listClasses.push(this.config.buttonClasses.filter((item) => typeof item === 'string' && item.indexOf('col') > -1)[0]);
     }
 
-    if (!this.config.allowMultiple || this.options.length === 0) {
+    if (!this.config.allowMultiple || this.options.length <= 1) {
       this.config.addSelectAllOption = false;
     }
 
@@ -212,7 +212,7 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit, OnChang
       return;
     }
 
-    if (selectedOptions.length === this.options.length) {
+    if (this.options.length > 1 && selectedOptions.length === this.options.length) {
       this.buttonText = 'All';
       return;
     }

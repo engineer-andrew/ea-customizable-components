@@ -228,6 +228,20 @@ describe('EaMultiSelectDropdownComponent', () => {
       });
     });
 
+    it('should not build the select all option when there is only one option to select', () => {
+      component.config.addSelectAllOption = true;
+      component.options = [
+        {display: 'First Option', id: 'first-option', isSelected: false, value: '[First].[Option]'}
+      ];
+
+      component.ngAfterContentInit();
+
+      expect(component.selectAllOption).toEqual(<EaMultiSelectDropdownOption>{
+        id: 'select-all',
+        isSelected: false
+      });
+    });
+
     it('should not select all options when the select all option is not included', () => {
       // arrange
       component.addSelectAllOption = false;
@@ -1481,7 +1495,7 @@ describe('EaMultiSelectDropdownComponent', () => {
       expect(component.buttonText).toBe('Third Option');
     });
 
-    it('should show \'All\' when all options are selected', () => {
+    it('should show \'All\' when there is more than one option and all options are selected', () => {
       // arrange
       component.options[1].isSelected = true;
 
@@ -1490,6 +1504,16 @@ describe('EaMultiSelectDropdownComponent', () => {
 
       // assert
       expect(component.buttonText).toBe('All');
+    });
+
+    it('should show the selected value when there is only one option and it is selected', () => {
+      component.options = [
+        { display: 'First Option', id: 1, isSelected: true, value: '[First].[Option]' }
+      ];
+
+      component.updateButtonText();
+
+      expect(component.buttonText).toBe('First Option');
     });
 
     it('should show the provided empty text when there are no values to select and there is an empty text provided', () => {

@@ -7,7 +7,7 @@ import {
 } from './modules/multi-select-dropdown/multi-select-dropdown.module';
 
 @Component({
-  selector: 'app-root',
+  selector: 'ea-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
   encapsulation: ViewEncapsulation.None
@@ -41,9 +41,7 @@ export class AppComponent {
     ];
 
     this.kingdoms = [
-      {id: 'westeros', value: 'Kingdom.Westeros', display: 'Westeros', isSelected: false},
-      {id: 'agartha', value: 'Kingdom.Agartha', display: 'Agartha', isSelected: false},
-      {id: 'Shambhala', value: 'Kingdom.Shambhala', display: 'Shambhala', isSelected: false}
+      {id: 'westeros', value: 'Kingdom.Westeros', display: 'Westeros', isSelected: false}
     ];
 
     setTimeout(() => {
@@ -59,6 +57,7 @@ export class AppComponent {
   }
 
   log($event) {
+    console.log($event);
   }
 
   select($event) {

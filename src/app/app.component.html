@@ -4,7 +4,7 @@
           <ea-multi-select-dropdown
               [id]="1"
               (selected)="select($event)"
-              (closed)="log($event)"
+              (changed)="log($event)"
               [label]="'Princess'"
               [options]="princesses"
               [addSelectAllOption]="true"
@@ -28,6 +28,7 @@
           <ea-multi-select-dropdown
               [id]="3"
               (selected)="select($event)"
+              (changed)="log($event)"
               [label]="'Kingdom'"
               [options]="kingdoms"
               [addSelectAllOption]="true"

@@ -1,57 +1,51 @@
 <div class="container mt-2" eaMultiSelectDropdownClose>
   <div class="row">
-      <div class="col-3 mb-4">
-          <ea-multi-select-dropdown
-              [id]="1"
-              (selected)="select($event)"
-              (changed)="log($event)"
-              [label]="'Princess'"
-              [options]="princesses"
-              [addSelectAllOption]="true"
-              [allowMultiple]="false">
-          </ea-multi-select-dropdown>
-      </div>
-      <div class="col-3 mb-4">
-          <ea-multi-select-dropdown
-              [id]="2"
-              (selected)="select($event)"
-              [label]="'Creatures'"
-              [options]="fantasyCreatures"
-              [addSelectAllOption]="true"
-              [selectAllText]="'All Creatures'"
-              [selectAllByDefault]="true"
-              (closed)="log($event)"
-              [emptyText]="'Please select a princess'">
-          </ea-multi-select-dropdown>
-      </div>
-      <div class="col-3 mb-4">
-          <ea-multi-select-dropdown
-              [id]="3"
-              (selected)="select($event)"
-              (changed)="log($event)"
-              [label]="'Kingdom'"
-              [options]="kingdoms"
-              [addSelectAllOption]="true"
-              [selectAllText]="'All Kingdoms'"
-              [selectAllByDefault]="true">
-          </ea-multi-select-dropdown>
-      </div>
-      <div class="col-3 mb-4">
-        <ea-multi-select-dropdown
-            [id]="4"
-            (selected)="select($event)"
-            [label]="'Empty'"
-            [options]="empty"
-            [addSelectAllOption]="true"
-            [selectAllByDefault]="true"
-            [emptyText]="'Nothing to see here'">
-        </ea-multi-select-dropdown>
+    <div class="col-3 mb-4">
+      <ea-multi-select-dropdown
+        [id]="1"
+        (selected)="select($event)"
+        (changed)="log($event)"
+        [label]="'Princess'"
+        [options]="princesses"
+        [addSelectAllOption]="true"
+        [allowMultiple]="false">
+      </ea-multi-select-dropdown>
     </div>
+    <div class="col-3 mb-4">
+      <ea-multi-select-dropdown
+        [id]="2"
+        (selected)="select($event)"
+        [label]="'Creatures'"
+        [options]="fantasyCreatures"
+        [addSelectAllOption]="true"
+        [selectAllText]="'All Creatures'"
+        [selectAllByDefault]="true"
+        (closed)="log($event)"
+        [emptyText]="'Please select a princess'">
+      </ea-multi-select-dropdown>
+    </div>
+  <div class="col-3 mb-4">
+    <ea-multi-select-dropdown
+      [id]="3"
+      (selected)="select($event)"
+      (changed)="log($event)"
+      [label]="'Kingdom'"
+      [options]="kingdoms"
+      [addSelectAllOption]="true"
+      [selectAllText]="'All Kingdoms'"
+      [selectAllByDefault]="true">
+    </ea-multi-select-dropdown>
   </div>
-  <div class="row">
-      Princess {{princess}} lives in {{kingdom}} with lots of creatures, like {{creatures}}.
+  <div class="col-3 mb-4">
+    <ea-multi-select-dropdown
+      [id]="4"
+      (selected)="select($event)"
+      [label]="'Empty'"
+      [options]="empty"
+      [addSelectAllOption]="true"
+      [selectAllByDefault]="true"
+      [emptyText]="'Nothing to see here'">
+    </ea-multi-select-dropdown>
   </div>
-  <div class="row">
-      <button class="btn btn-primary">Apply</button>
-  </div>
+</div>
 </div>

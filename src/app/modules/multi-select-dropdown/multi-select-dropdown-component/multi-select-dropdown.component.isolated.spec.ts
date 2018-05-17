@@ -6,15 +6,28 @@ import { EaMultiSelectDropdownOption } from '../models/multi-select-dropdown-opt
 import { EaMultiSelectDropdownService } from '../multi-select-dropdown-service/multi-select-dropdown.service';
 import { MockEaMultiSelectDropdownService } from '../multi-select-dropdown-service/mock-multi-select-dropdown.service';
 import { customMatchers } from '../../../../testing/custom-matchers';
-import { EventEmitter, SimpleChanges } from '@angular/core';
+import { EventEmitter, SimpleChanges, SimpleChange, KeyValueDiffers } from '@angular/core';
 import { EaMultiSelectDropdownConfig } from '../models';
+
+// class KeyValueDiffersStub {
+//   find(kv: any) {
+//     return {
+//       create(): any {
+//         return {
+//           diff(comp: any): void {}
+//         };
+//       }
+//     };
+//   }
+// }
 
 describe('EaMultiSelectDropdownComponent', () => {
   let component: EaMultiSelectDropdownComponent;
-  let fixture: ComponentFixture<EaMultiSelectDropdownComponent>;
-  let updateButtonTextSpy: jasmine.Spy;
   let defaultOptions: EaMultiSelectDropdownOption[];
+  let fixture: ComponentFixture<EaMultiSelectDropdownComponent>;
+  let keyValueDiffers: KeyValueDiffers;
   let multiSelectDropdownService: EaMultiSelectDropdownService;
+  let updateButtonTextSpy: jasmine.Spy;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -28,6 +41,7 @@ describe('EaMultiSelectDropdownComponent', () => {
     })
     .compileComponents();
 
+    keyValueDiffers = TestBed.get(KeyValueDiffers);
     multiSelectDropdownService = TestBed.get(EaMultiSelectDropdownService);
   }));
 
@@ -274,6 +288,54 @@ describe('EaMultiSelectDropdownComponent', () => {
     });
   });
 
+  describe('during change detection', () => {
+    it('should track when an option\'s selected value has changed', () => {
+      component.options = defaultOptions;
+      component.optionDiffers = {
+        1: {
+          diff(option: any) {
+            return {
+              forEachChangedItem(fn: (r: any) => void): void {
+                fn({key: 'isSelected', currentValue: false});
+              }
+            };
+          }
+        },
+        2: {
+          diff(option: any) {
+            return {
+              forEachChangedItem(fn: (r: any) => void): void {
+                fn({key: 'isSelected', currentValue: true});
+              }
+            };
+          }
+        },
+        3: {
+          diff(option: any) {
+            return {
+              forEachChangedItem(fn: (r: any) => void): void {
+                fn({key: 'isSelected', currentValue: false});
+              }
+            };
+          }
+        }
+      };
+      component.trackedChanges = [
+        { currentValue: false, key: 1, originalValue: false },
+        { currentValue: false, key: 2, originalValue: false },
+        { currentValue: false, key: 3, originalValue: false }
+      ];
+
+      component.ngDoCheck();
+
+      expect(component.trackedChanges).toEqual([
+        { currentValue: false, key: 1, originalValue: false },
+        { currentValue: true, key: 2, originalValue: false },
+        { currentValue: false, key: 3, originalValue: false }
+      ]);
+    });
+  });
+
   describe('when the data source changes', () => {
     beforeEach(() => {
       spyOn(component, 'selectAll');
@@ -313,6 +375,46 @@ describe('EaMultiSelectDropdownComponent', () => {
 
       // assert
       expect(component.selectAll).not.toHaveBeenCalled();
+    });
+
+    it('should not try to create a differ for each option when the options are not changed', () => {
+      component.optionDiffers = {};
+
+      component.ngOnChanges(<SimpleChanges>{});
+
+      expect(component.optionDiffers).toEqual({});
+    });
+
+    it('should create a differ for each option when the options are changed', () => {
+      component.optionDiffers = {};
+      component.options = defaultOptions;
+
+      component.ngOnChanges(<SimpleChanges>{
+        'options': <SimpleChange> {
+          currentValue: component.options,
+          firstChange: true
+        }
+      });
+
+      expect(component.optionDiffers[1]).toBeDefined();
+      expect(component.optionDiffers[2]).toBeDefined();
+      expect(component.optionDiffers[3]).toBeDefined();
+    });
+
+    it('should clear any existing differs when the options are changed', () => {
+      component.optionDiffers = {
+        10: {}
+      };
+      component.options = defaultOptions;
+
+      component.ngOnChanges(<SimpleChanges>{
+        'options': <SimpleChange> {
+          currentValue: component.options,
+          firstChange: true
+        }
+      });
+
+      expect(component.optionDiffers[10]).not.toBeDefined();
     });
   });
 
@@ -935,6 +1037,7 @@ describe('EaMultiSelectDropdownComponent', () => {
   describe('close', () => {
     beforeEach(() => {
       spyOn(component.closed, 'emit');
+      spyOn(component.changed, 'emit');
     });
 
     it('should hide the list of options', () => {
@@ -1009,6 +1112,76 @@ describe('EaMultiSelectDropdownComponent', () => {
 
       // assert
       expect(component.closed.emit).not.toHaveBeenCalled();
+    });
+
+    it('should emit false when a false is passed', () => {
+      component.isOpen = true;
+      component.trackedChanges = [
+        { currentValue: false, key: 'first-option', originalValue: false },
+        { currentValue: true, key: 'second-option', originalValue: false },
+        { currentValue: false, key: 'third-option', originalValue: false }
+      ];
+
+      component.close(false);
+
+      expect(component.changed.emit).toHaveBeenCalledTimes(1);
+      expect(component.changed.emit).toHaveBeenCalledWith(false);
+    });
+
+    it('should emit true when a true is passed', () => {
+      component.isOpen = true;
+      component.trackedChanges = [
+        { currentValue: false, key: 'first-option', originalValue: false },
+        { currentValue: false, key: 'second-option', originalValue: false },
+        { currentValue: false, key: 'third-option', originalValue: false }
+      ];
+
+      component.close(true);
+
+      expect(component.changed.emit).toHaveBeenCalledTimes(1);
+      expect(component.changed.emit).toHaveBeenCalledWith(true);
+    });
+
+    it('should emit true when an option that was selected when the dropdown opened is not selected when the dropdown closes', () => {
+      component.isOpen = true;
+      component.trackedChanges = [
+        { currentValue: false, key: 'first-option', originalValue: false },
+        { currentValue: true, key: 'second-option', originalValue: false },
+        { currentValue: false, key: 'third-option', originalValue: false }
+      ];
+
+      component.close();
+
+      expect(component.changed.emit).toHaveBeenCalledTimes(1);
+      expect(component.changed.emit).toHaveBeenCalledWith(true);
+    });
+
+    it('should emit true when an option that was not selected when the dropdown opened is selected when the dropdown closes', () => {
+      component.isOpen = true;
+      component.trackedChanges = [
+        { currentValue: false, key: 'first-option', originalValue: true },
+        { currentValue: true, key: 'second-option', originalValue: true },
+        { currentValue: false, key: 'third-option', originalValue: false }
+      ];
+
+      component.close();
+
+      expect(component.changed.emit).toHaveBeenCalledTimes(1);
+      expect(component.changed.emit).toHaveBeenCalledWith(true);
+    });
+
+    it('should emit false when all of the options\' selections are the same as they were when the dropdown opened', () => {
+      component.isOpen = true;
+      component.trackedChanges = [
+        { currentValue: false, key: 'first-option', originalValue: false },
+        { currentValue: true, key: 'second-option', originalValue: true },
+        { currentValue: false, key: 'third-option', originalValue: false }
+      ];
+
+      component.close();
+
+      expect(component.changed.emit).toHaveBeenCalledTimes(1);
+      expect(component.changed.emit).toHaveBeenCalledWith(false);
     });
   });
 
@@ -1132,6 +1305,7 @@ describe('EaMultiSelectDropdownComponent', () => {
 
       // assert
       expect(component.close).toHaveBeenCalledTimes(1);
+      expect(component.close).toHaveBeenCalledWith(true);
     });
 
     it('should de-select all other options when multiple selections are not allowed', () => {
@@ -1219,6 +1393,7 @@ describe('EaMultiSelectDropdownComponent', () => {
       // arrange
       spyOn(multiSelectDropdownService, 'closeOthers');
       spyOn(component.closed, 'emit');
+      spyOn(component.changed, 'emit');
 
       component.options = [
         {display: 'First Option', id: 'first-option', isSelected: true, value: '[First].[Option]'}
@@ -1351,6 +1526,85 @@ describe('EaMultiSelectDropdownComponent', () => {
 
       // assert
       expect(component.closed.emit).not.toHaveBeenCalled();
+    });
+
+    it('should reset the tracked values for the options', () => {
+      component.trackedChanges = [
+        { currentValue: false, key: 'first-option', originalValue: true },
+        { currentValue: true, key: 'second-option', originalValue: false },
+        { currentValue: false, key: 'third-option', originalValue: true }
+      ];
+      component.options = [
+        {display: 'First Option', id: 'first-option', isSelected: false, value: '[First].[Option]'},
+        {display: 'Second Option', id: 'second-option', isSelected: true, value: '[Second].[Option]'},
+        {display: 'Third Option', id: 'third-option', isSelected: false, value: '[Third].[Option]'}
+      ];
+
+      component.toggle();
+
+      expect(component.trackedChanges).toEqual([
+        { currentValue: false, key: 'first-option', originalValue: false },
+        { currentValue: true, key: 'second-option', originalValue: true },
+        { currentValue: false, key: 'third-option', originalValue: false }
+      ]);
+    });
+
+    it('should store the initial selected value of each option', () => {
+      component.options = [
+        {display: 'First Option', id: 'first-option', isSelected: false, value: '[First].[Option]'},
+        {display: 'Second Option', id: 'second-option', isSelected: true, value: '[Second].[Option]'},
+        {display: 'Third Option', id: 'third-option', isSelected: false, value: '[Third].[Option]'}
+      ];
+
+      component.toggle();
+
+      expect(component.trackedChanges).toEqual([
+        { currentValue: false, key: 'first-option', originalValue: false },
+        { currentValue: true, key: 'second-option', originalValue: true },
+        { currentValue: false, key: 'third-option', originalValue: false }
+      ]);
+    });
+
+    it('should emit true when an option that was selected when the dropdown opened is not selected when the dropdown closes', () => {
+      component.isOpen = true;
+      component.trackedChanges = [
+        { currentValue: false, key: 'first-option', originalValue: false },
+        { currentValue: true, key: 'second-option', originalValue: false },
+        { currentValue: false, key: 'third-option', originalValue: false }
+      ];
+
+      component.toggle();
+
+      expect(component.changed.emit).toHaveBeenCalledTimes(1);
+      expect(component.changed.emit).toHaveBeenCalledWith(true);
+    });
+
+    it('should emit true when an option that was not selected when the dropdown opened is selected when the dropdown closes', () => {
+      component.isOpen = true;
+      component.trackedChanges = [
+        { currentValue: false, key: 'first-option', originalValue: true },
+        { currentValue: true, key: 'second-option', originalValue: true },
+        { currentValue: false, key: 'third-option', originalValue: false }
+      ];
+
+      component.toggle();
+
+      expect(component.changed.emit).toHaveBeenCalledTimes(1);
+      expect(component.changed.emit).toHaveBeenCalledWith(true);
+    });
+
+    it('should emit false when all of the options\' selections are the same as they were when the dropdown opened', () => {
+      component.isOpen = true;
+      component.trackedChanges = [
+        { currentValue: false, key: 'first-option', originalValue: false },
+        { currentValue: true, key: 'second-option', originalValue: true },
+        { currentValue: false, key: 'third-option', originalValue: false }
+      ];
+
+      component.toggle();
+
+      expect(component.changed.emit).toHaveBeenCalledTimes(1);
+      expect(component.changed.emit).toHaveBeenCalledWith(false);
     });
   });
 

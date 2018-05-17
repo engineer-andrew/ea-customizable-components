@@ -34,13 +34,13 @@ describe('', () => {
   describe('the open function on MultiSelectDropdownService', () => {
     it('should close all registered components except the selected component', () => {
       // arrange
-      const first = new FakeEaMultiSelectDropdownComponent(service);
+      const first = new FakeEaMultiSelectDropdownComponent(service, null);
       first.id = 1;
       service.components.push(first);
-      const second = new FakeEaMultiSelectDropdownComponent(service);
+      const second = new FakeEaMultiSelectDropdownComponent(service, null);
       second.id = 1;
       service.components.push(second);
-      const component = new FakeEaMultiSelectDropdownComponent(service);
+      const component = new FakeEaMultiSelectDropdownComponent(service, null);
       component.id = 2;
       component.isOpen = false;
       service.components.push(component);
@@ -61,7 +61,7 @@ describe('', () => {
   describe('the register function on MultiSelectDropdownService', () => {
     it('should add the passed component to the components list', () => {
       // arrange
-      const component = new FakeEaMultiSelectDropdownComponent(service);
+      const component = new FakeEaMultiSelectDropdownComponent(service, null);
       component.id = 99;
       service.components = [];
 

@@ -1,13 +1,24 @@
-import { Component, Input, AfterContentInit, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  AfterContentInit,
+  Output,
+  EventEmitter,
+  OnChanges,
+  SimpleChanges,
+  KeyValueDiffers,
+  DoCheck
+} from '@angular/core';
 import { EaMultiSelectDropdownConfig, EaMultiSelectDropdownOption } from '../models';
 import { EaMultiSelectDropdownService } from '../multi-select-dropdown-service/multi-select-dropdown.service';
+import { EaMultiSelectDropdownTrackedChange } from '../models/multi-select-dropdown-tracked-change.model';
 
 @Component({
   selector: 'ea-multi-select-dropdown',
   templateUrl: './multi-select-dropdown.component.html',
   styles: ['.ea-multi-select-dropdown-container > label { width: 100%; }']
 })
-export class EaMultiSelectDropdownComponent implements AfterContentInit, OnChanges {
+export class EaMultiSelectDropdownComponent implements AfterContentInit, OnChanges, DoCheck {
   @Input() addSelectAllOption: boolean;
   @Input() allowMultiple: boolean;
   @Input() buttonClasses: string[] = [];
@@ -30,17 +41,20 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit, OnChang
   @Input() config: EaMultiSelectDropdownConfig = {};
 
   @Output() allSelected: EventEmitter<any> = new EventEmitter();
-  @Output() selected: EventEmitter<any> = new EventEmitter();
+  @Output() changed: EventEmitter<any> = new EventEmitter();
   @Output() closed: EventEmitter<any> = new EventEmitter();
+  @Output() selected: EventEmitter<any> = new EventEmitter();
 
   public buttonText: string;
   public isOpen = false;
+  public optionDiffers: {} = {};
   public selectAllOption: EaMultiSelectDropdownOption = <EaMultiSelectDropdownOption>{
     id: 'select-all',
     isSelected: false
   };
+  public trackedChanges: EaMultiSelectDropdownTrackedChange[] = [];
 
-  constructor(private eaMultiSelectDropdownService: EaMultiSelectDropdownService) {
+  constructor(private eaMultiSelectDropdownService: EaMultiSelectDropdownService, private differs: KeyValueDiffers) {
   }
 
   ngAfterContentInit() {
@@ -73,9 +87,30 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit, OnChang
     this.eaMultiSelectDropdownService.register(this);
   }
 
+  ngDoCheck() {
+    if (!!this.trackedChanges && this.trackedChanges.length > 0) {
+      this.options.forEach(option => {
+        const optionDiffer = this.optionDiffers[option.id];
+        const optionChanges = optionDiffer.diff(option);
+        if (!!optionChanges) {
+          optionChanges.forEachChangedItem(changedOption => {
+            if (changedOption.key === 'isSelected') {
+              this.trackedChanges.find(tc => tc.key === option.id).currentValue = changedOption.currentValue;
+            }
+          });
+        }
+      });
+    }
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (this.config.addSelectAllOption && this.config.selectAllByDefault) {
       this.selectAll();
+    }
+
+    if (!!changes.options) {
+      this.optionDiffers = {};
+      this.options.forEach(option => this.optionDiffers[option.id] = this.differs.find(option).create());
     }
   }
 
@@ -141,8 +176,9 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit, OnChang
       ['fa', 'fa-square-o'] : this.config.uncheckedClasses : this.uncheckedClasses;
   }
 
-  close(): void {
+  close(changed?: boolean): void {
     if (this.isOpen) {
+      this.changed.emit(changed !== undefined ? changed : !!this.trackedChanges.find(tc => tc.originalValue !== tc.currentValue));
       this.closed.emit(this.options);
     }
     this.isOpen = false;
@@ -162,8 +198,8 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit, OnChang
     }
 
     if (!this.config.allowMultiple) {
-      this.close();
       this.options.filter(o => o.id !== id).forEach(o => o.isSelected = false);
+      this.close(true);
     }
 
     this.updateButtonText();
@@ -188,7 +224,16 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit, OnChang
 
     if (this.isOpen) {
       this.eaMultiSelectDropdownService.closeOthers(this);
+      this.trackedChanges = [];
+      this.options.forEach(option => {
+        this.trackedChanges.push({
+          currentValue: option.isSelected,
+          key: option.id,
+          originalValue: option.isSelected
+        });
+      });
     } else {
+      this.changed.emit(!!this.trackedChanges.find(tc => tc.originalValue !== tc.currentValue));
       this.closed.emit(this.options);
     }
   }

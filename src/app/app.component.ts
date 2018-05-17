@@ -41,23 +41,22 @@ export class AppComponent {
     ];
 
     this.kingdoms = [
-      {id: 'westeros', value: 'Kingdom.Westeros', display: 'Westeros', isSelected: false}
+      {id: 'westeros', value: 'Kingdom.Westeros', display: 'Westeros', isSelected: false},
+      {id: 'agartha', value: 'Kingdom.Agartha', display: 'Agartha', isSelected: false},
+      {id: 'Shambhala', value: 'Kingdom.Shambhala', display: 'Shambhala', isSelected: false}
     ];
 
     setTimeout(() => {
-      console.log('timeout');
       this.princesses = [
         {id: 'ariel', value: 'Princess.Ariel', display: 'Ariel', isSelected: false},
         {id: 'tiana', value: 'Princess.Tiana', display: 'Tiana', isSelected: false},
         {id: 'anna', value: 'Princess.Anna', display: 'Anna', isSelected: false}
       ];
-
-      this.fantasyCreatures = [];
     }, 5000);
   }
 
   log($event) {
-    console.log($event);
+    console.log('log', $event);
   }
 
   select($event) {

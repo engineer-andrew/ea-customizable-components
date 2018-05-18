@@ -45,14 +45,6 @@ export class AppComponent {
       {id: 'agartha', value: 'Kingdom.Agartha', display: 'Agartha', isSelected: false},
       {id: 'Shambhala', value: 'Kingdom.Shambhala', display: 'Shambhala', isSelected: false}
     ];
-
-    setTimeout(() => {
-      this.princesses = [
-        {id: 'ariel', value: 'Princess.Ariel', display: 'Ariel', isSelected: false},
-        {id: 'tiana', value: 'Princess.Tiana', display: 'Tiana', isSelected: false},
-        {id: 'anna', value: 'Princess.Anna', display: 'Anna', isSelected: false}
-      ];
-    }, 5000);
   }
 
   log($event) {
@@ -76,5 +68,31 @@ export class AppComponent {
     if (!!this.princesses.find(p => p.isSelected)) {
       this.princess = this.princesses.find(p => p.isSelected).display;
     }
+  }
+
+  switch() {
+    this.princesses = [
+      {id: 'ariel', value: 'Princess.Ariel', display: 'Ariel', isSelected: false},
+      {id: 'tiana', value: 'Princess.Tiana', display: 'Tiana', isSelected: false},
+      {id: 'anna', value: 'Princess.Anna', display: 'Anna', isSelected: false}
+    ];
+
+    this.fantasyCreatures = [
+      {id: 'gnomes', value: 'Creatures.Gnomes', display: 'Gnomes', isSelected: false}
+    ];
+  }
+
+  switchBack() {
+    this.princesses = [
+      {id: 'cinderella', value: 'Princess.Cinderella', display: 'Cinderella', isSelected: false},
+      {id: 'snow-white', value: 'Princess.Snow-White', display: 'Snow White', isSelected: false},
+      {id: 'briar-rose', value: 'Princess.Briar-Rose', display: 'Sleeping Beauty', isSelected: false}
+    ];
+
+    this.fantasyCreatures = [
+      {id: 'fairies', value: 'Creatures.Fairies', display: 'Fairies', isSelected: false},
+      {id: 'trolls', value: 'Creatures.Trolls', display: 'Trolls', isSelected: false},
+      {id: 'ogres', value: 'Creatures.Ogres', display: 'Ogres', isSelected: false}
+    ];
   }
 }

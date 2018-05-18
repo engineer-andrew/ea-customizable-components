@@ -9,18 +9,6 @@ import { customMatchers } from '../../../../testing/custom-matchers';
 import { EventEmitter, SimpleChanges, SimpleChange, KeyValueDiffers } from '@angular/core';
 import { EaMultiSelectDropdownConfig } from '../models';
 
-// class KeyValueDiffersStub {
-//   find(kv: any) {
-//     return {
-//       create(): any {
-//         return {
-//           diff(comp: any): void {}
-//         };
-//       }
-//     };
-//   }
-// }
-
 describe('EaMultiSelectDropdownComponent', () => {
   let component: EaMultiSelectDropdownComponent;
   let defaultOptions: EaMultiSelectDropdownOption[];
@@ -341,7 +329,42 @@ describe('EaMultiSelectDropdownComponent', () => {
       spyOn(component, 'selectAll');
     });
 
-    it('should remove the select all option when there is only option to select', () => {
+    it('should foricbly hide the select all option when there is only option to select', () => {
+      component.config.addSelectAllOption = true;
+      component.forceHideSelectAllOption = false;
+      component.config.selectAllByDefault = true;
+
+      component.ngOnChanges(<SimpleChanges>{
+        'options': <SimpleChange>{
+          currentValue: [{ display: 'First Option', id: 1, isSelected: false, value: '[First].[Option]' }],
+          previousValue: defaultOptions,
+          firstChange: false
+        }
+      });
+
+      expect(component.forceHideSelectAllOption).toBe(true);
+    });
+
+    it('should not forcibly hide the select all option when there is more than one option to select', () => {
+      component.config.addSelectAllOption = true;
+      component.forceHideSelectAllOption = true;
+      component.config.selectAllByDefault = true;
+
+      component.ngOnChanges(<SimpleChanges>{
+        'options': <SimpleChange>{
+          currentValue: [
+            { display: 'First Option', id: 1, isSelected: false, value: '[First].[Option]' },
+            { display: 'Second Option', id: 2, isSelected: false, value: '[Second].[Option]' }
+          ],
+          previousValue: defaultOptions,
+          firstChange: false
+        }
+      });
+
+      expect(component.forceHideSelectAllOption).toBe(false);
+    });
+
+    it('should select all options when the select all option is included and all options should be selected by default', () => {
       component.config.addSelectAllOption = true;
       component.config.selectAllByDefault = true;
 
@@ -353,15 +376,6 @@ describe('EaMultiSelectDropdownComponent', () => {
         }
       });
 
-      expect(component.config.addSelectAllOption).toBe(false);
-    });
-
-    it('should select all options when the select all option is included and all options should be selected by default', () => {
-      component.config.addSelectAllOption = true;
-      component.config.selectAllByDefault = true;
-
-      component.ngOnChanges(<SimpleChanges>{});
-
       expect(component.selectAll).toHaveBeenCalledTimes(1);
     });
 
@@ -371,7 +385,13 @@ describe('EaMultiSelectDropdownComponent', () => {
       component.selectAllByDefault = false;
 
       // act
-      component.ngOnChanges(<SimpleChanges>{});
+      component.ngOnChanges(<SimpleChanges>{
+        'options': <SimpleChange>{
+          currentValue: [{ display: 'First Option', id: 1, isSelected: false, value: '[First].[Option]' }],
+          previousValue: defaultOptions,
+          firstChange: false
+        }
+      });
 
       // assert
       expect(component.selectAll).not.toHaveBeenCalled();
@@ -383,7 +403,13 @@ describe('EaMultiSelectDropdownComponent', () => {
       component.selectAllByDefault = true;
 
       // act
-      component.ngOnChanges(<SimpleChanges>{});
+      component.ngOnChanges(<SimpleChanges>{
+        'options': <SimpleChange>{
+          currentValue: [{ display: 'First Option', id: 1, isSelected: false, value: '[First].[Option]' }],
+          previousValue: defaultOptions,
+          firstChange: false
+        }
+      });
 
       // assert
       expect(component.selectAll).not.toHaveBeenCalled();
@@ -392,7 +418,13 @@ describe('EaMultiSelectDropdownComponent', () => {
     it('should not try to create a differ for each option when the options are not changed', () => {
       component.optionDiffers = {};
 
-      component.ngOnChanges(<SimpleChanges>{});
+      component.ngOnChanges(<SimpleChanges>{
+        'options': <SimpleChange>{
+          currentValue: [{ display: 'First Option', id: 1, isSelected: false, value: '[First].[Option]' }],
+          previousValue: defaultOptions,
+          firstChange: false
+        }
+      });
 
       expect(component.optionDiffers).toEqual({});
     });
@@ -428,6 +460,8 @@ describe('EaMultiSelectDropdownComponent', () => {
 
       expect(component.optionDiffers[10]).not.toBeDefined();
     });
+
+    it('should update the button text when only one option is allowed to be selected', () => {});
   });
 
   describe('buildConfig', () => {

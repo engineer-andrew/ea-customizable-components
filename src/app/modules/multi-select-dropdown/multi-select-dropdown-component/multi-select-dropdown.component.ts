@@ -46,6 +46,7 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit, OnChang
   @Output() selected: EventEmitter<any> = new EventEmitter();
 
   public buttonText: string;
+  public forceHideSelectAllOption = false;
   public isOpen = false;
   public optionDiffers: {} = {};
   public selectAllOption: EaMultiSelectDropdownOption = <EaMultiSelectDropdownOption>{
@@ -104,15 +105,14 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit, OnChang
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (this.config.addSelectAllOption && this.config.selectAllByDefault) {
-      this.selectAll();
-    }
-
     if (!!changes.options) {
-      if (changes.options.currentValue.length === 1) {
-        this.config.addSelectAllOption = false;
+      if (this.config.addSelectAllOption && this.config.selectAllByDefault) {
+        this.selectAll();
+      } else {
+        this.updateButtonText();
       }
 
+      this.forceHideSelectAllOption = changes.options.currentValue.length === 1;
       this.optionDiffers = {};
       this.options.forEach(option => this.optionDiffers[option.id] = this.differs.find(option).create());
     }

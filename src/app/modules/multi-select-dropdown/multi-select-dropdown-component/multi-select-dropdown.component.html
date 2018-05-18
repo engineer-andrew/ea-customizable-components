@@ -8,7 +8,7 @@
     </div>
   </button>
   <div *ngIf="isOpen" [ngClass]="config.listClasses" class="option-list">
-    <div *ngIf="config.addSelectAllOption" [ngClass]="config.optionClasses" (click)="toggleAll()">
+    <div *ngIf="config.addSelectAllOption && !forceHideSelectAllOption" [ngClass]="config.optionClasses" (click)="toggleAll()">
       <i [ngClass]="(selectAllOption.isSelected) ? config.checkedClasses : config.uncheckedClasses"></i>
       {{selectAllOption.display}}
     </div>

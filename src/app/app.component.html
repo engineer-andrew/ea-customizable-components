@@ -19,33 +19,38 @@
         [options]="fantasyCreatures"
         [addSelectAllOption]="true"
         [selectAllText]="'All Creatures'"
-        [selectAllByDefault]="true"
         (closed)="log($event)"
         [emptyText]="'Please select a princess'">
       </ea-multi-select-dropdown>
     </div>
-  <div class="col-3 mb-4">
-    <ea-multi-select-dropdown
-      [id]="3"
-      (selected)="select($event)"
-      (changed)="log($event)"
-      [label]="'Kingdom'"
-      [options]="kingdoms"
-      [addSelectAllOption]="true"
-      [selectAllText]="'All Kingdoms'"
-      [selectAllByDefault]="true">
-    </ea-multi-select-dropdown>
+    <div class="col-3 mb-4">
+      <ea-multi-select-dropdown
+        [id]="3"
+        (selected)="select($event)"
+        (changed)="log($event)"
+        [label]="'Kingdom'"
+        [options]="kingdoms"
+        [addSelectAllOption]="true"
+        [selectAllText]="'All Kingdoms'"
+        [selectAllByDefault]="true">
+      </ea-multi-select-dropdown>
+    </div>
+    <div class="col-3 mb-4">
+      <ea-multi-select-dropdown
+        [id]="4"
+        (selected)="select($event)"
+        [label]="'Empty'"
+        [options]="empty"
+        [addSelectAllOption]="true"
+        [selectAllByDefault]="true"
+        [emptyText]="'Nothing to see here'">
+      </ea-multi-select-dropdown>
+    </div>
   </div>
-  <div class="col-3 mb-4">
-    <ea-multi-select-dropdown
-      [id]="4"
-      (selected)="select($event)"
-      [label]="'Empty'"
-      [options]="empty"
-      [addSelectAllOption]="true"
-      [selectAllByDefault]="true"
-      [emptyText]="'Nothing to see here'">
-    </ea-multi-select-dropdown>
+  <div class="row">
+    <div class="col">
+      <button class="btn btn-primary mr-5" (click)="switch()">Switch Data</button>
+      <button class="btn btn-seconday" (click)="switchBack()">Switch Data Back</button>
+    </div>
   </div>
-</div>
 </div>

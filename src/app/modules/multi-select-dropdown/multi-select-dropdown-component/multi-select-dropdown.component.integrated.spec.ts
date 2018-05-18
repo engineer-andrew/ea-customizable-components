@@ -158,6 +158,27 @@ describe('EaMultiSelectDropdownComponent', () => {
     expect(debugElements[0].nativeElement.textContent).toContain('First Option');
   });
 
+  it('should not display the select all option when the select all option has been overridden by having only one option', () => {
+    // arrange
+    component.isOpen = true;
+    component.config.addSelectAllOption = true;
+    component.forceHideSelectAllOption = true;
+    component.selectAllOption = {
+      display: '(Select All)',
+      id: 'select-all',
+      isSelected: true,
+      value: 'Select-All'
+    };
+    fixture.detectChanges();
+
+    // act
+    const debugElements = fixture.debugElement.queryAll(By.css('div.option-list > div'));
+
+    // assert
+    expect(debugElements.length).toBe(3);
+    expect(debugElements[0].nativeElement.textContent).toContain('First Option');
+  });
+
   it('should display the value of each option in the list', () => {
     // arrange
     component.options = [

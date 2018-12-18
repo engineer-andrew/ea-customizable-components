@@ -1,0 +1,7 @@
+{
+  "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+  "dest": "../../dist/ea-multi-select-dropdown",
+  "lib": {
+    "entryFile": "src/public_api.ts"
+  }
+}

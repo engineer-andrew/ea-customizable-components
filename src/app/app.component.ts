@@ -4,10 +4,10 @@ import {
   EaMultiSelectDropdownComponent,
   EaMultiSelectDropdownService,
   EaMultiSelectDropdownOption
-} from './modules/multi-select-dropdown/multi-select-dropdown.module';
+} from '../../projects/multi-select-dropdown/src/public_api';
 
 @Component({
-  selector: 'ea-root',
+  selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
   encapsulation: ViewEncapsulation.None

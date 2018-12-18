@@ -1,9 +1,8 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
-import { EaMultiSelectDropdownModule } from './modules/multi-select-dropdown/multi-select-dropdown.module';
-
 import { AppComponent } from './app.component';
+import { EaMultiSelectDropdownModule } from '../../projects/multi-select-dropdown/src/public_api';
 
 @NgModule({
   declarations: [

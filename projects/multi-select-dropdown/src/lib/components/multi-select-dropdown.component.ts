@@ -1,267 +1,185 @@
 import {
   Component,
   Input,
-  AfterContentInit,
   Output,
   EventEmitter,
-  OnChanges,
-  SimpleChanges,
   KeyValueDiffers,
-  DoCheck
+  DoCheck,
+  OnInit
 } from '@angular/core';
-import { EaMultiSelectDropdownConfig, EaMultiSelectDropdownOption } from '../models';
-import { EaMultiSelectDropdownService } from '../providers/multi-select-dropdown.service';
-import { EaMultiSelectDropdownTrackedChange } from '../models/multi-select-dropdown-tracked-change.model';
+import {
+  EaMultiSelectDropdownConfig,
+  EaMultiSelectDropdownOption,
+  EaMultiSelectDropdownChangedArgs
+} from '../models';
 
 @Component({
   selector: 'ea-multi-select-dropdown',
   templateUrl: './multi-select-dropdown.component.html',
   styles: ['.ea-multi-select-dropdown-container > label { width: 100%; }']
 })
-export class EaMultiSelectDropdownComponent implements AfterContentInit, OnChanges, DoCheck {
-  @Input() addSelectAllOption: boolean;
-  @Input() allowMultiple: boolean;
-  @Input() buttonClasses: string[] = [];
-  @Input() buttonIconClasses: string[];
-  @Input() buttonTextStyles: any;
-  @Input() buttonWrapperClasses: string[];
-  @Input() checkedClasses: string[];
-  @Input() containerClasses: string[];
-  @Input() emptyText: string;
-  @Input() id: string | number;
-  @Input() label: string;
-  @Input() listClasses: string[] = [];
-  @Input() optionClasses: string[];
-  @Input() options: EaMultiSelectDropdownOption[] = [];
-  @Input() selectAllByDefault: boolean;
-  @Input() selectAllText: string;
-  @Input() selectAllValue: string;
-  @Input() uncheckedClasses: string[];
-
+export class EaMultiSelectDropdownComponent implements OnInit, DoCheck {
   @Input() config: EaMultiSelectDropdownConfig = {};
+  @Input() id: number | string;
 
-  @Output() allSelected: EventEmitter<any> = new EventEmitter();
-  @Output() changed: EventEmitter<any> = new EventEmitter();
+  @Output() changed: EventEmitter<EaMultiSelectDropdownChangedArgs> = new EventEmitter();
   @Output() closed: EventEmitter<any> = new EventEmitter();
-  @Output() selected: EventEmitter<any> = new EventEmitter();
+  @Output() opened: EventEmitter<any> = new EventEmitter();
 
   public buttonText: string;
-  public forceHideSelectAllOption = false;
+  public failedToOpen = false;
   public isOpen = false;
-  public optionDiffers: {} = {};
-  public selectAllOption: EaMultiSelectDropdownOption = <EaMultiSelectDropdownOption>{
-    id: 'select-all',
-    isSelected: false
-  };
-  public trackedChanges: EaMultiSelectDropdownTrackedChange[] = [];
+  public originals: {id: (string|number); isSelected: boolean}[] = [];
+  public selectAllOption: EaMultiSelectDropdownOption;
+  public showSelectAllOption = false;
 
-  constructor(private eaMultiSelectDropdownService: EaMultiSelectDropdownService, private differs: KeyValueDiffers) {
-  }
+  private keyValueDiffer: any;
 
-  ngAfterContentInit() {
-    this.buildConfig();
+  constructor(private keyValueDiffers: KeyValueDiffers) {}
 
-    if (this.config.listClasses.filter((item) => typeof item === 'string' && item.indexOf('col') > -1).length === 0 &&
-        this.config.buttonClasses.filter((item) => typeof item === 'string' && item.indexOf('col') > -1).length > 0) {
-          this.config.listClasses.push(this.config.buttonClasses.filter((item) => typeof item === 'string' && item.indexOf('col') > -1)[0]);
-    }
+  ngOnInit(): void {
+    // get the default configuration and overwrite the default values with any provided values
+    this.applyDefaultConfigurationValues();
 
-    if (!this.config.allowMultiple || this.options.length <= 1) {
-      this.config.addSelectAllOption = false;
-    }
-
-    if (this.config.addSelectAllOption) {
-      this.selectAllOption = {
-        display: this.config.selectAllText,
-        id: 'select-all',
-        isSelected: this.config.selectAllByDefault,
-        value: this.config.selectAllValue
-      };
-
-      if (this.config.selectAllByDefault) {
-        this.selectAll();
+    // if the width of the list of options hasn't been explicitly set and the width of the button has (using a bootstrap 'col' class), make them the same width
+    if (this.config.listClasses.find(item => item.indexOf('col') === -1)) {
+      const buttonWidthClass = this.config.buttonClasses.find(item => item.indexOf('col') > -1);
+      if (!!buttonWidthClass) {
+        this.config.listClasses.push(buttonWidthClass);
       }
     }
 
+    // define the (Select All) options
+    this.selectAllOption = {
+      display: this.config.selectAllText,
+      id: 'select-all',
+      isSelected: false,
+      value: this.config.selectAllValue
+    };
+
+    // mark every option as selected if that's been specified
+    this.selectAllByDefault();
+
+    this.setShowSelectAllOption();
+
     this.updateButtonText();
 
-    this.eaMultiSelectDropdownService.register(this);
+    // create a differ on the config object so we can check whether it's changed later
+    this.keyValueDiffer = this.keyValueDiffers.find(this.config).create();
   }
 
-  ngDoCheck() {
-    if (!!this.trackedChanges && this.trackedChanges.length > 0) {
-      this.options.forEach(option => {
-        const optionDiffer = this.optionDiffers[option.id];
-        const optionChanges = optionDiffer.diff(option);
-        if (!!optionChanges) {
-          optionChanges.forEachChangedItem(changedOption => {
-            if (changedOption.key === 'isSelected') {
-              this.trackedChanges.find(tc => tc.key === option.id).currentValue = changedOption.currentValue;
+  ngDoCheck(): void {
+    // the diff function gives us a KeyValueChangeRecord instance with a method to iterate the changed properties on the specified object (the config object in this case)
+    const configChanges = this.keyValueDiffer.diff(this.config);
+    if (!!configChanges) {
+      configChanges.forEachChangedItem(changed => {
+        switch (changed.key) {
+          case 'options':
+            // if the options have changed then we want to basically start over as though the component is being loaded for the first time
+            this.setShowSelectAllOption();
+            this.selectAllByDefault();
+            this.updateButtonText();
+            // this.failedToOpen will only ever be true if the user clicked on the dropdown while it was loading data
+            // if that happens, and the dropdown is configured to automatically show the options when they become available, then that's exactly what we do
+            if (!!this.failedToOpen && this.config.openWhenDataLoads) {
+              this.failedToOpen = false;
+              this.openList();
             }
-          });
+            break;
+          case 'emptyText':
+            // in the event the 'empty text' changes we only really need to update the button text if there are no options
+            // if there are options now, then the empty text changes (and we don't update the button text), then the options get removed, that'll trigger the button
+            // text to get updated again anyway (above)
+            if (!this.isPopulatedArray(this.config.options)) {
+              this.updateButtonText();
+            }
+            break;
         }
       });
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (!!changes.options) {
-      if (this.config.addSelectAllOption && this.config.selectAllByDefault) {
-        this.selectAll();
-      } else {
-        this.updateButtonText();
-      }
-
-      this.forceHideSelectAllOption = changes.options.currentValue.length === 1;
-      this.optionDiffers = {};
-      this.options.forEach(option => this.optionDiffers[option.id] = this.differs.find(option).create());
-    }
-  }
-
-  buildConfig(): void {
-    this.config.addSelectAllOption = (this.addSelectAllOption === null || this.addSelectAllOption === undefined) ?
-      (this.config.addSelectAllOption === null || this.config.addSelectAllOption === undefined) ?
-      false : this.config.addSelectAllOption : this.addSelectAllOption;
-
-    this.config.allowMultiple = (this.allowMultiple === null || this.allowMultiple === undefined) ?
-      (this.config.allowMultiple === null || this.config.allowMultiple === undefined) ?
-      true : this.config.allowMultiple : this.allowMultiple;
-
-    this.config.buttonClasses = (this.buttonClasses === null || this.buttonClasses === undefined || this.buttonClasses.length === 0) ?
-      (this.config.buttonClasses === null || this.config.buttonClasses === undefined || this.config.buttonClasses.length === 0) ?
-      ['btn', 'btn-default'] : this.config.buttonClasses : this.buttonClasses;
-
-    this.config.buttonIconClasses = (!this.buttonIconClasses || this.buttonIconClasses.length === 0) ?
-      (!this.config.buttonIconClasses || this.config.buttonIconClasses.length === 0) ?
-      ['fa', 'fa-angle-down', 'align-self-center'] : this.config.buttonIconClasses : this.buttonIconClasses;
-
-    this.config.buttonTextStyles = (this.buttonTextStyles === null || this.buttonTextStyles === undefined) ?
-      (this.config.buttonTextStyles === null || this.config.buttonTextStyles === undefined) ?
-      {'flex': 1} : this.config.buttonTextStyles : this.buttonTextStyles;
-
-    this.config.buttonWrapperClasses = (!this.buttonWrapperClasses || this.buttonWrapperClasses.length === 0) ?
-      (!this.config.buttonWrapperClasses || this.config.buttonWrapperClasses.length === 0) ?
-      ['d-flex'] : this.config.buttonWrapperClasses : this.buttonWrapperClasses;
-
-    this.config.checkedClasses = (!this.checkedClasses || this.checkedClasses.length === 0) ?
-      (!this.config.checkedClasses || this.config.checkedClasses.length === 0) ?
-      ['fa', 'fa-check-square-o'] : this.config.checkedClasses : this.checkedClasses;
-
-    this.config.containerClasses = (!this.containerClasses || this.containerClasses.length === 0) ?
-      (!this.config.containerClasses || this.config.containerClasses.length === 0) ?
-      [] : this.config.containerClasses : this.containerClasses;
-
-    this.config.emptyText = (this.emptyText === null || this.emptyText === undefined) ?
-      (this.config.emptyText === null || this.config.emptyText === undefined) ?
-      null : this.config.emptyText : this.emptyText;
-
-    this.config.listClasses = (!this.listClasses || this.listClasses.length === 0) ?
-      (!this.config.listClasses || this.config.listClasses.length === 0) ?
-      [] : this.config.listClasses : this.listClasses;
-
-    this.config.optionClasses = (!this.optionClasses || this.optionClasses.length === 0) ?
-      (!this.config.optionClasses || this.config.optionClasses.length === 0) ?
-      ['multi-select-option'] : this.config.optionClasses : this.optionClasses;
-
-    this.config.selectAllByDefault = (this.selectAllByDefault === null || this.selectAllByDefault === undefined) ?
-      (this.config.selectAllByDefault === null || this.config.selectAllByDefault === undefined) ?
-      false : this.config.selectAllByDefault : this.selectAllByDefault;
-
-    this.config.selectAllText = (this.selectAllText === null || this.selectAllText === undefined) ?
-      (this.config.selectAllText === null || this.config.selectAllText === undefined) ?
-      '(Select All)' : this.config.selectAllText : this.selectAllText;
-
-    this.config.selectAllValue = (this.selectAllValue === null || this.selectAllValue === undefined) ?
-      (this.config.selectAllValue === null || this.config.selectAllValue === undefined) ?
-      null : this.config.selectAllValue : this.selectAllValue;
-
-    this.config.uncheckedClasses = (!this.uncheckedClasses || this.uncheckedClasses.length === 0) ?
-      (!this.config.uncheckedClasses || this.config.uncheckedClasses.length === 0) ?
-      ['fa', 'fa-square-o'] : this.config.uncheckedClasses : this.uncheckedClasses;
-  }
-
-  close(changed?: boolean): void {
-    if (this.isOpen) {
-      this.changed.emit(changed !== undefined ? changed : !!this.trackedChanges.find(tc => tc.originalValue !== tc.currentValue));
-      this.closed.emit(this.options);
-    }
+  closeList(): void {
     this.isOpen = false;
-  }
-
-  select(id: number | string): void {
-    const option = this.options.find(o => o.id === id);
-    option.isSelected = !option.isSelected;
-
-    if (this.config.addSelectAllOption) {
-      const selectedOptions = this.options.filter(o => o.isSelected).length;
-      if (selectedOptions === this.options.length) {
-        this.selectAllOption.isSelected = true;
-      } else {
-        this.selectAllOption.isSelected = false;
+    const changed: EaMultiSelectDropdownOption[] = [];
+    this.config.options.forEach(o => {
+      const match = this.originals.find(original => original.id === o.id);
+      if (!!match && o.isSelected !== match.isSelected) {
+        changed.push(o);
       }
+    });
+    if (this.isPopulatedArray(changed)) {
+      this.changed.emit({
+        id: this.id, changes: changed
+      });
     }
-
-    if (!this.config.allowMultiple) {
-      this.options.filter(o => o.id !== id).forEach(o => o.isSelected = false);
-      this.close(true);
-    }
-
-    this.updateButtonText();
-
-    this.selected.emit(option);
+    this.setOriginals();
+    this.failedToOpen = false;
+    this.closed.emit(this.id);
   }
 
-  selectAll(): void {
-    this.selectAllOption.isSelected = true;
-    this.options.forEach(o => o.isSelected = true);
-    this.updateButtonText();
-    this.allSelected.emit(this.selectAllOption);
+  openList(): void {
+    this.opened.emit(this.id);
+    if (this.isPopulatedArray(this.config.options)) {
+      this.isOpen = true;
+      this.setOriginals();
+    } else {
+      this.isOpen = false;
+      this.failedToOpen = true;
+    }
   }
 
-  toggle(): void {
-    if (this.options.length === 0) {
-      this.eaMultiSelectDropdownService.closeOthers(this);
-      return;
+  selectAllByDefault(): void {
+    if (this.config.selectAllByDefault) {
+      this.config.options.forEach(o => o.isSelected = true);
+      this.selectAllOption.isSelected = true;
     }
+  }
 
-    this.isOpen = !this.isOpen;
+  toggleList(): void {
+    !!this.isOpen ? this.closeList() : this.openList();
+  }
 
-    if (this.isOpen) {
-      this.eaMultiSelectDropdownService.closeOthers(this);
-      this.trackedChanges = [];
-      this.options.forEach(option => {
-        this.trackedChanges.push({
-          currentValue: option.isSelected,
-          key: option.id,
-          originalValue: option.isSelected
-        });
+  toggleOption(id: string | number): void {
+    if (id === this.selectAllOption.id) {
+      this.selectAllOption.isSelected = !this.selectAllOption.isSelected;
+      this.config.options.forEach(o => {
+        o.isSelected = this.selectAllOption.isSelected;
       });
     } else {
-      this.changed.emit(!!this.trackedChanges.find(tc => tc.originalValue !== tc.currentValue));
-      this.closed.emit(this.options);
-    }
-  }
+      const option = this.config.options.find(o => o.id === id);
+      option.isSelected = !option.isSelected;
 
-  toggleAll(): void {
-    this.selectAllOption.isSelected = !this.selectAllOption.isSelected;
-    this.options.forEach(o => o.isSelected = this.selectAllOption.isSelected);
+      if (this.showSelectAllOption) {
+        if (this.config.options.filter(o => o.isSelected).length === this.config.options.length) {
+          this.selectAllOption.isSelected = true;
+        } else {
+          this.selectAllOption.isSelected = false;
+        }
+      }
+
+      if (option.isSelected && !this.config.allowMultiple) {
+        this.toggleList();
+        this.config.options.filter(o => o.id !== id).forEach(o => o.isSelected = false);
+      }
+    }
+
     this.updateButtonText();
-    this.allSelected.emit(this.selectAllOption);
   }
 
   updateButtonText(): void {
-    if (this.options.length === 0 && !!this.config.emptyText) {
-      this.buttonText = this.config.emptyText;
+    if (!this.config.options || this.config.options.length === 0) {
+      this.buttonText = !!this.config.emptyText ? this.config.emptyText : '';
       return;
     }
 
-    const selectedOptions = this.options.filter(o => o.isSelected);
+    const selectedOptions = this.config.options.filter(o => o.isSelected);
     if (selectedOptions.length === 0) {
-      this.buttonText = '';
+      this.buttonText = !!this.config.noneSelectedText ? this.config.noneSelectedText : '';
       return;
     }
 
-    if (this.options.length > 1 && selectedOptions.length === this.options.length) {
+    if (this.config.options.length > 1 && selectedOptions.length === this.config.options.length) {
       this.buttonText = 'All';
       return;
     }
@@ -269,5 +187,44 @@ export class EaMultiSelectDropdownComponent implements AfterContentInit, OnChang
     this.buttonText = selectedOptions.length === 1 ? '' : `(${selectedOptions.length}) `;
     selectedOptions.forEach(o => this.buttonText += `${o.display}, `);
     this.buttonText = this.buttonText.substring(0, this.buttonText.length - 2);
+  }
+
+  private applyDefaultConfigurationValues(): void {
+    this.config.addSelectAllOption = this.isBooleanNullOrUndefined(this.config.addSelectAllOption) ? false : this.config.addSelectAllOption;
+    this.config.allowMultiple = this.isBooleanNullOrUndefined(this.config.allowMultiple) ? true : this.config.allowMultiple;
+    this.config.buttonClasses = this.isPopulatedArray(this.config.buttonClasses) ? this.config.buttonClasses : ['btn', 'btn-default'];
+    this.config.buttonIconClasses = this.isPopulatedArray(this.config.buttonIconClasses) ? this.config.buttonIconClasses : ['fa', 'fa-angle-down', 'align-self-center'];
+    this.config.buttonTextStyles = !!this.config.buttonTextStyles ? this.config.buttonTextStyles : {'flex': 1};
+    this.config.buttonWrapperClasses = this.isPopulatedArray(this.config.buttonWrapperClasses) ? this.config.buttonWrapperClasses : ['d-flex'];
+    this.config.checkedClasses = this.isPopulatedArray(this.config.checkedClasses) ? this.config.checkedClasses : ['fa', 'fa-check-square-o'];
+    this.config.listClasses = this.isPopulatedArray(this.config.listClasses) ? this.config.listClasses : [];
+    this.config.optionClasses = this.isPopulatedArray(this.config.optionClasses) ? this.config.optionClasses : ['ea-multi-select-option'];
+    this.config.selectAllByDefault = this.isBooleanNullOrUndefined(this.config.selectAllByDefault) ? false : this.config.selectAllByDefault;
+    this.config.selectAllText = !!this.config.selectAllText ? this.config.selectAllText : '(Select All)';
+    this.config.showSelectAllWhenMoreThan = !!this.config.showSelectAllWhenMoreThan ? this.config.showSelectAllWhenMoreThan : 1;
+    this.config.uncheckedClasses = this.isPopulatedArray(this.config.uncheckedClasses) ? this.config.uncheckedClasses : ['fa', 'fa-square-o'];
+  }
+
+  private isBooleanNullOrUndefined(input: boolean): boolean {
+    return input === undefined || input === null;
+  }
+
+  private isPopulatedArray(input: any[]): boolean {
+    return !!input && input.length > 0;
+  }
+
+  private setOriginals(): void {
+    this.originals = [];
+    this.config.options.forEach(o => {
+      this.originals.push({id: o.id, isSelected: o.isSelected});
+    });
+  }
+
+  private setShowSelectAllOption(): void {
+    if (!this.config.addSelectAllOption || !this.config.allowMultiple || !this.config.options || this.config.options.length <= this.config.showSelectAllWhenMoreThan) {
+      this.showSelectAllOption = false;
+    } else {
+      this.showSelectAllOption = true;
+    }
   }
 }

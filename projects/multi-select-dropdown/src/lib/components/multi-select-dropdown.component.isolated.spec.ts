@@ -1,1847 +1,796 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { EaMultiSelectDropdownComponent } from './multi-select-dropdown.component';
-import { EaMultiSelectDropdownOption } from '../models/multi-select-dropdown-option.model';
-import { EaMultiSelectDropdownService } from '../providers/multi-select-dropdown.service';
-import { MockEaMultiSelectDropdownService } from '../providers/mock-multi-select-dropdown.service';
-import { customMatchers } from '../../../../../src/testing/custom-matchers';
-import { SimpleChanges, SimpleChange, KeyValueDiffers } from '@angular/core';
-import { EaMultiSelectDropdownConfig } from '../models';
+import { customMatchers, KeyValueDifferFactoryStub, KeyValueDifferStub, KeyValueDiffersStub } from '../../../../../src/testing';
+import { KeyValueDiffers } from '@angular/core';
 
 describe('EaMultiSelectDropdownComponent', () => {
+  let changes: any;
   let component: EaMultiSelectDropdownComponent;
-  let defaultOptions: EaMultiSelectDropdownOption[];
   let fixture: ComponentFixture<EaMultiSelectDropdownComponent>;
-  let keyValueDiffers: KeyValueDiffers;
-  let multiSelectDropdownService: EaMultiSelectDropdownService;
-  let updateButtonTextSpy: jasmine.Spy;
+  let keyValueDifferFactory: KeyValueDifferFactoryStub;
+  let keyValueDifferFactorySpy: jasmine.Spy;
+  let keyValueDiffers: KeyValueDiffersStub;
+  let keyValueDiffersSpy: jasmine.Spy;
+  let keyValueDifferStub: KeyValueDifferStub;
+  let keyValueDifferStubSpy: jasmine.Spy;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ EaMultiSelectDropdownComponent ],
       providers: [
         {
-          provide: EaMultiSelectDropdownService,
-          useClass: MockEaMultiSelectDropdownService
+          provide: KeyValueDiffers,
+          useClass: KeyValueDiffersStub
         }
       ]
     })
     .compileComponents();
 
+    keyValueDifferFactory = new KeyValueDifferFactoryStub();
     keyValueDiffers = TestBed.get(KeyValueDiffers);
-    multiSelectDropdownService = TestBed.get(EaMultiSelectDropdownService);
+    keyValueDifferStub = new KeyValueDifferStub();
+
+    keyValueDifferStubSpy = spyOn(keyValueDifferStub, 'diff').and.callFake((input) => {
+      return changes;
+    });
+    keyValueDifferFactorySpy = spyOn(keyValueDifferFactory, 'create').and.returnValue(keyValueDifferStub);
+    keyValueDiffersSpy = spyOn(keyValueDiffers, 'find').and.returnValue(keyValueDifferFactory);
   }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(EaMultiSelectDropdownComponent);
     component = fixture.componentInstance;
-    updateButtonTextSpy = spyOn(component, 'updateButtonText');
     fixture.detectChanges();
 
-    defaultOptions = [
-      { display: 'First Option', id: 1, isSelected: false, value: '[First].[Option]' },
-      { display: 'Second Option', id: 2, isSelected: false, value: '[Second].[Option]' },
-      { display: 'Third Option', id: 3, isSelected: false, value: '[Third].[Option]' }
-    ];
-  });
-
-  beforeEach(() => {
     jasmine.addMatchers(customMatchers);
-  });
 
-  describe('should define a default value', () => {
-    it('to hide the list of options', () => {
-      // assert
-      expect(component.isOpen).toBe(false);
-    });
+    component.config.options = [
+      { id: 1, display: 'First Option', value: '[First].[Option]', isSelected: true },
+      { id: 2, display: 'Second Option', value: '[Second].[Option]', isSelected: true },
+      { id: 3, display: 'Third Option', value: '[Third].[Option]', isSelected: false }
+    ];
   });
 
   describe('during initialization', () => {
     beforeEach(() => {
-      // arrange
-      spyOn(component, 'buildConfig');
-      spyOn(component, 'selectAll').and.callThrough();
-    });
-
-    it('should apply the first col positioning class found on the button to the list when the list does not have a col positioning class',
-      () => {
-        // arrange
-        component.config.listClasses = ['dropdown-list'];
-        component.config.buttonClasses = ['col-1', 'col-12'];
-
-        // act
-        component.ngAfterContentInit();
-
-        // assert
-        expect(component.config.listClasses).toEqual(['dropdown-list', 'col-1']);
-      }
-    );
-
-    it('should not apply any new col positioning class to the list when the list already has a col positioning class', () => {
-      // arrange
-      component.config.listClasses = ['dropdown-list', 'col-9'];
-      component.config.buttonClasses = ['col-1', 'col-12'];
-
-      // act
-      component.ngAfterContentInit();
-
-      // assert
-      expect(component.config.listClasses).toEqual(['dropdown-list', 'col-9']);
-    });
-
-    it('should reset all select all properties when multiple selections are not allowed', () => {
-      // arrange
+      component.config.allowMultiple = true;
+      component.config.showSelectAllWhenMoreThan = 1;
       component.config.addSelectAllOption = true;
-      component.config.allowMultiple = false;
-
-      // act
-      component.ngAfterContentInit();
-
-      // assert
-      expect(component.selectAllOption).toEqual(<EaMultiSelectDropdownOption>{
-        id: 'select-all',
-        isSelected: false
-      });
-      expect(component.config.addSelectAllOption).toBe(false);
     });
 
-    it('should build the select all option when the select all option is included and a value is provided and there are options to select', () => {
-      // arrange
-      component.config.addSelectAllOption = true;
-      component.config.selectAllValue = 'select-all-value';
-      component.options = [
-        {display: 'First Option', id: 'first-option', isSelected: false, value: '[First].[Option]'},
-        {display: 'Second Option', id: 'second-option', isSelected: false, value: '[Second].[Option]'},
-        {display: 'Third Option', id: 'third-option', isSelected: false, value: '[Third].[Option]'}
-      ];
+    it('should use the default settings for everything that is not provided by the parent component', () => {
+      component.config = {
+        allowMultiple: false,
+        options: [
+          { display: 'First Option', id: 1, value: '[First].[Option]', isSelected: false }
+        ]
+      };
 
-      // act
-      component.ngAfterContentInit();
+      component.ngOnInit();
 
-      // assert
-      expect(component.selectAllOption).toEqual({
-        display: '(Select All)',
-        id: 'select-all',
-        isSelected: false,
-        value: 'select-all-value'
+      expect(component.config).toEqual({
+        addSelectAllOption: false,
+        allowMultiple: false,
+        buttonClasses: ['btn', 'btn-default'],
+        buttonIconClasses: ['fa', 'fa-angle-down', 'align-self-center'],
+        buttonTextStyles: {'flex': 1},
+        buttonWrapperClasses: ['d-flex'],
+        checkedClasses: ['fa', 'fa-check-square-o'],
+        listClasses: [],
+        optionClasses: ['ea-multi-select-option'],
+        options: [
+          { display: 'First Option', id: 1, value: '[First].[Option]', isSelected: false }
+        ],
+        selectAllByDefault: false,
+        selectAllText: '(Select All)',
+        showSelectAllWhenMoreThan: 1,
+        uncheckedClasses: ['fa', 'fa-square-o']
       });
     });
 
-    it('should build the select all option when the select all option is included and custom text is provided and there are options to select', () => {
-      // arrange
-      component.config.addSelectAllOption = true;
-      component.config.selectAllText = 'All';
-      component.options = [
-        {display: 'First Option', id: 'first-option', isSelected: false, value: '[First].[Option]'},
-        {display: 'Second Option', id: 'second-option', isSelected: false, value: '[Second].[Option]'},
-        {display: 'Third Option', id: 'third-option', isSelected: false, value: '[Third].[Option]'}
-      ];
+    it('should replace the default configuration settings with what the parent component provided', () => {
+      component.config = {
+        addSelectAllOption: true,
+        allowMultiple: false,
+        buttonClasses: ['btn', 'btn-secondary'],
+        buttonIconClasses: ['fa', 'fa-angle-up', 'justify-content-center'],
+        buttonTextStyles: {'flex': 0},
+        buttonWrapperClasses: ['dog'],
+        checkedClasses: ['fa', 'fa-check-circle-o'],
+        listClasses: [],
+        options: [],
+        optionClasses: ['none'],
+        selectAllByDefault: true,
+        selectAllText: '(GET \'EM)',
+        showSelectAllWhenMoreThan: 5,
+        uncheckedClasses: ['fa', 'fa-circle-o']
+      };
 
-      // act
-      component.ngAfterContentInit();
+      component.ngOnInit();
 
-      // assert
-      expect(component.selectAllOption).toEqual({
-        display: 'All',
-        id: 'select-all',
-        isSelected: false,
-        value: null
+      expect(component.config).toEqual({
+        addSelectAllOption: true,
+        allowMultiple: false,
+        buttonClasses: ['btn', 'btn-secondary'],
+        buttonIconClasses: ['fa', 'fa-angle-up', 'justify-content-center'],
+        buttonTextStyles: {'flex': 0},
+        buttonWrapperClasses: ['dog'],
+        checkedClasses: ['fa', 'fa-check-circle-o'],
+        listClasses: [],
+        options: [],
+        optionClasses: ['none'],
+        selectAllByDefault: true,
+        selectAllText: '(GET \'EM)',
+        showSelectAllWhenMoreThan: 5,
+        uncheckedClasses: ['fa', 'fa-circle-o']
       });
     });
 
-    it('should build the select all option when the select all option is included and all options should be selected by default and there are options to select', () => {
-      // arrange
-      component.config.addSelectAllOption = true;
-      component.options = [
-        {display: 'First Option', id: 'first-option', isSelected: false, value: '[First].[Option]'},
-        {display: 'Second Option', id: 'second-option', isSelected: false, value: '[Second].[Option]'},
-        {display: 'Third Option', id: 'third-option', isSelected: false, value: '[Third].[Option]'}
-      ];
+    it('should stretch the list of options to match the width of the button when the button has a width specified with Bootstrap and the list of options is not styled at all', () => {
+      component.config.listClasses = ['cat'];
+      component.config.buttonClasses = ['col-6', 'dog'];
+
+      component.ngOnInit();
+
+      expect(component.config.listClasses).toEqual(['cat', 'col-6']);
+    });
+
+    it('should stretch the list of options to match the width of the button when the button has a width specified with Bootstrap and the list of options does not', () => {
+      component.config.listClasses = ['cat'];
+      component.config.buttonClasses = ['col-6', 'dog'];
+
+      component.ngOnInit();
+
+      expect(component.config.listClasses).toEqual(['cat', 'col-6']);
+    });
+
+    it('should not stretch the list of options to match the width of the button when the button does not have a width specified with Bootstrap', () => {
+      component.config.listClasses = [];
+      component.config.buttonClasses = ['cat', 'dog'];
+
+      component.ngOnInit();
+
+      expect(component.config.listClasses).toEqual([]);
+    });
+
+    it('should not stretch the list of options to match the width of the button when the button has a width specified with Bootstrap and the list of options also has a width specified with Bootstrap', () => {
+      component.config.listClasses = ['col-2'];
+      component.config.buttonClasses = ['col-6', 'dog'];
+
+      component.ngOnInit();
+
+      expect(component.config.listClasses).toEqual(['col-2']);
+    });
+
+    it('should build the (Select All) option', () => {
       component.config.selectAllByDefault = true;
+      component.config.selectAllText = 'Get All Dogs';
+      component.config.selectAllValue = '[Dogs].[All]';
+      component.config.options = [];
+      component.ngOnInit();
 
-      // act
-      component.ngAfterContentInit();
-
-      // assert
       expect(component.selectAllOption).toEqual({
-        display: '(Select All)',
+        display: 'Get All Dogs',
         id: 'select-all',
         isSelected: true,
-        value: null
+        value: '[Dogs].[All]'
       });
     });
 
-    it('should select all options when the select all option is included and all options should be selected by default and there are options to select', () => {
-      // arrange
-      component.config.addSelectAllOption = true;
-      component.config.selectAllByDefault = true;
-      component.options = [
-        {display: 'First Option', id: 'first-option', isSelected: false, value: '[First].[Option]'},
-        {display: 'Second Option', id: 'second-option', isSelected: false, value: '[Second].[Option]'},
-        {display: 'Third Option', id: 'third-option', isSelected: false, value: '[Third].[Option]'}
-      ];
+    it('should select all options if necessary', () => {
+      spyOn(component, 'selectAllByDefault');
 
-      // act
-      component.ngAfterContentInit();
+      component.ngOnInit();
 
-      // assert
-      expect(component.selectAll).toHaveBeenCalledTimes(1);
+      expect(component.selectAllByDefault).toHaveBeenCalledTimes(1);
     });
 
-    it('should not select all options when the select all option is included, but all options should not be selected by default', () => {
-      // arrange
-      component.addSelectAllOption = true;
+    describe('should not display the (Select All) option', () => {
+      it('when the parent component has not configured the (Select All) option to be displayed', () => {
+        component.config.addSelectAllOption = false;
 
-      // act
-      component.ngAfterContentInit();
+        component.ngOnInit();
 
-      // assert
-      expect(component.selectAll).not.toHaveBeenCalled();
-    });
+        expect(component.showSelectAllOption).toBe(false);
+      });
 
-    it('should not build the select all option when the select all option is not included', () => {
-      // arrange
-      component.addSelectAllOption = false;
+      it('when there are fewer options than the minimum threshold set by the parent component', () => {
+        component.config.showSelectAllWhenMoreThan = 3;
 
-      // act
-      component.ngAfterContentInit();
+        component.ngOnInit();
 
-      // assert
-      expect(component.selectAllOption).toEqual(<EaMultiSelectDropdownOption>{
-        id: 'select-all',
-        isSelected: false
+        expect(component.showSelectAllOption).toBe(false);
+      });
+
+      it('when the list is not multi-select enabled', () => {
+        component.config.allowMultiple = false;
+
+        component.ngOnInit();
+
+        expect(component.showSelectAllOption).toBe(false);
       });
     });
 
-    it('should not build the select all option when there are no options to select', () => {
-      // arrange
-      component.config.addSelectAllOption = true;
-      component.options = [];
-      component.config.selectAllByDefault = true;
+    describe('should display the (Select All) option', () => {
+      it('when there are more options than the minimum threshold set by the parent component, the parent component has configured the (Select All) option to be displayed, and the list is multi-select enabled', () => {
+        component.ngOnInit();
 
-      // act
-      component.ngAfterContentInit();
-
-      // assert
-      expect(component.selectAllOption).toEqual(<EaMultiSelectDropdownOption>{
-        id: 'select-all',
-        isSelected: false
+        expect(component.showSelectAllOption).toBe(true);
       });
-    });
-
-    it('should not build the select all option when there is only one option to select', () => {
-      component.config.addSelectAllOption = true;
-      component.options = [
-        {display: 'First Option', id: 'first-option', isSelected: false, value: '[First].[Option]'}
-      ];
-
-      component.ngAfterContentInit();
-
-      expect(component.selectAllOption).toEqual(<EaMultiSelectDropdownOption>{
-        id: 'select-all',
-        isSelected: false
-      });
-    });
-
-    it('should not select all options when the select all option is not included', () => {
-      // arrange
-      component.addSelectAllOption = false;
-      component.selectAllByDefault = true;
-
-      // act
-      component.ngAfterContentInit();
-
-      // assert
-      expect(component.selectAll).not.toHaveBeenCalled();
-    });
-
-    it('should update the button text', () => {
-      // arrange
-      updateButtonTextSpy.calls.reset();
-
-      // act
-      component.ngAfterContentInit();
-
-      // assert
-      expect(updateButtonTextSpy).toHaveBeenCalledTimes(1);
-    });
-
-    it('should build the config object', () => {
-      // act
-      component.ngAfterContentInit();
-
-      // assert
-      expect(component.buildConfig).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('during change detection', () => {
-    it('should track when an option\'s selected value has changed', () => {
-      component.options = defaultOptions;
-      component.optionDiffers = {
-        1: {
-          diff(option: any) {
-            return {
-              forEachChangedItem(fn: (r: any) => void): void {
-                fn({key: 'isSelected', currentValue: false});
-              }
-            };
-          }
-        },
-        2: {
-          diff(option: any) {
-            return {
-              forEachChangedItem(fn: (r: any) => void): void {
-                fn({key: 'isSelected', currentValue: true});
-              }
-            };
-          }
-        },
-        3: {
-          diff(option: any) {
-            return {
-              forEachChangedItem(fn: (r: any) => void): void {
-                fn({key: 'isSelected', currentValue: false});
-              }
-            };
-          }
-        }
-      };
-      component.trackedChanges = [
-        { currentValue: false, key: 1, originalValue: false },
-        { currentValue: false, key: 2, originalValue: false },
-        { currentValue: false, key: 3, originalValue: false }
-      ];
+    let updateButtonTextSpy: jasmine.Spy;
 
-      component.ngDoCheck();
-
-      expect(component.trackedChanges).toEqual([
-        { currentValue: false, key: 1, originalValue: false },
-        { currentValue: true, key: 2, originalValue: false },
-        { currentValue: false, key: 3, originalValue: false }
-      ]);
-    });
-  });
-
-  describe('when the data source changes', () => {
     beforeEach(() => {
-      spyOn(component, 'selectAll');
+      updateButtonTextSpy = spyOn(component, 'updateButtonText');
     });
 
-    it('should foricbly hide the select all option when there is only option to select', () => {
-      component.config.addSelectAllOption = true;
-      component.forceHideSelectAllOption = false;
-      component.config.selectAllByDefault = true;
-
-      component.ngOnChanges(<SimpleChanges>{
-        'options': <SimpleChange>{
-          currentValue: [{ display: 'First Option', id: 1, isSelected: false, value: '[First].[Option]' }],
-          previousValue: defaultOptions,
-          firstChange: false
-        }
-      });
-
-      expect(component.forceHideSelectAllOption).toBe(true);
-    });
-
-    it('should not forcibly hide the select all option when there is more than one option to select', () => {
-      component.config.addSelectAllOption = true;
-      component.forceHideSelectAllOption = true;
-      component.config.selectAllByDefault = true;
-
-      component.ngOnChanges(<SimpleChanges>{
-        'options': <SimpleChange>{
-          currentValue: [
-            { display: 'First Option', id: 1, isSelected: false, value: '[First].[Option]' },
-            { display: 'Second Option', id: 2, isSelected: false, value: '[Second].[Option]' }
-          ],
-          previousValue: defaultOptions,
-          firstChange: false
-        }
-      });
-
-      expect(component.forceHideSelectAllOption).toBe(false);
-    });
-
-    it('should select all options when the select all option is included and all options should be selected by default', () => {
-      component.config.addSelectAllOption = true;
-      component.config.selectAllByDefault = true;
-
-      component.ngOnChanges(<SimpleChanges>{
-        'options': <SimpleChange>{
-          currentValue: [{ display: 'First Option', id: 1, isSelected: false, value: '[First].[Option]' }],
-          previousValue: defaultOptions,
-          firstChange: false
-        }
-      });
-
-      expect(component.selectAll).toHaveBeenCalledTimes(1);
-    });
-
-    it('should not select all options when the select all option is included, but all options should not be selected by default', () => {
-      // arrange
-      component.addSelectAllOption = true;
-      component.selectAllByDefault = false;
-
-      // act
-      component.ngOnChanges(<SimpleChanges>{
-        'options': <SimpleChange>{
-          currentValue: [{ display: 'First Option', id: 1, isSelected: false, value: '[First].[Option]' }],
-          previousValue: defaultOptions,
-          firstChange: false
-        }
-      });
-
-      // assert
-      expect(component.selectAll).not.toHaveBeenCalled();
-    });
-
-    it('should not select all options when the select all option is not included', () => {
-      // arrange
-      component.addSelectAllOption = false;
-      component.selectAllByDefault = true;
-
-      // act
-      component.ngOnChanges(<SimpleChanges>{
-        'options': <SimpleChange>{
-          currentValue: [{ display: 'First Option', id: 1, isSelected: false, value: '[First].[Option]' }],
-          previousValue: defaultOptions,
-          firstChange: false
-        }
-      });
-
-      // assert
-      expect(component.selectAll).not.toHaveBeenCalled();
-    });
-
-    it('should not try to create a differ for each option when the options are not changed', () => {
-      component.optionDiffers = {};
-
-      component.ngOnChanges(<SimpleChanges>{
-        'options': <SimpleChange>{
-          currentValue: [{ display: 'First Option', id: 1, isSelected: false, value: '[First].[Option]' }],
-          previousValue: defaultOptions,
-          firstChange: false
-        }
-      });
-
-      expect(component.optionDiffers).toEqual({});
-    });
-
-    it('should create a differ for each option when the options are changed', () => {
-      component.optionDiffers = {};
-      component.options = defaultOptions;
-
-      component.ngOnChanges(<SimpleChanges>{
-        'options': <SimpleChange> {
-          currentValue: component.options,
-          firstChange: true
-        }
-      });
-
-      expect(component.optionDiffers[1]).toBeDefined();
-      expect(component.optionDiffers[2]).toBeDefined();
-      expect(component.optionDiffers[3]).toBeDefined();
-    });
-
-    it('should clear any existing differs when the options are changed', () => {
-      component.optionDiffers = {
-        10: {}
-      };
-      component.options = defaultOptions;
-
-      component.ngOnChanges(<SimpleChanges>{
-        'options': <SimpleChange> {
-          currentValue: component.options,
-          firstChange: true
-        }
-      });
-
-      expect(component.optionDiffers[10]).not.toBeDefined();
-    });
-
-    it('should update the button text when only one option is allowed to be selected', () => {});
-  });
-
-  describe('buildConfig', () => {
-    describe('should set the select all option', () => {
-      it('to the value provided separately when there is a value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          addSelectAllOption: false
+    describe('when the options have changed', () => {
+      beforeEach(() => {
+        changes = {
+          forEachItem(fn: (r: any) => void): void {},
+          forEachPreviousItem(fn: (r: any) => void): void {},
+          forEachChangedItem(fn: (r: any) => void): void {
+            fn({key: 'options'});
+          },
+          forEachAddedItem(fn: (r: any) => void): void {},
+          forEachRemovedItem(fn: (r: any) => void): void {}
         };
-        component.addSelectAllOption = true;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.addSelectAllOption).toBe(true);
+        component.config.allowMultiple = true;
+        component.config.showSelectAllWhenMoreThan = 1;
+        component.config.addSelectAllOption = true;
+        expect(component.selectAllOption.isSelected).toBe(false);
       });
 
-      it('to the value provided on the config object when there is no value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          addSelectAllOption: false
-        };
-        component.addSelectAllOption = undefined;
+      it('and the parent component has configured all options to be selected by default the EaMultiSelectDropdownComponent should select all options', () => {
+        component.config.selectAllByDefault = true;
 
-        // act
-        component.buildConfig();
+        component.ngDoCheck();
 
-        // assert
-        expect(component.config.addSelectAllOption).toBe(false);
+        expect(component.config.options[0].isSelected).toBe(true);
+        expect(component.config.options[1].isSelected).toBe(true);
       });
 
-      it('to false when there is no value provided on the config or separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {};
-        component.addSelectAllOption = undefined;
+      it('and the parent component has configured all options to not be selected by default the EaMultiSelectDropdownComponent should not select all options', () => {
+        component.config.options[0].isSelected = false;
+        component.config.options[1].isSelected = false;
+        component.config.selectAllByDefault = false;
 
-        // act
-        component.buildConfig();
-        // assert
-        expect(component.config.addSelectAllOption).toBe(false);
+        component.ngDoCheck();
+
+        expect(component.config.options[0].isSelected).toBe(false);
+        expect(component.config.options[1].isSelected).toBe(false);
+      });
+
+      describe('and', () => {
+        beforeEach(() => {
+          component.showSelectAllOption = true;
+        });
+
+        it('the parent component has not configured the (Select All) option to be displayed the EaMultiSelectDropdownComponent should not display the (Select All) option', () => {
+          component.config.addSelectAllOption = false;
+
+          component.ngDoCheck();
+
+          expect(component.showSelectAllOption).toBe(false);
+        });
+
+        it('there are fewer options than the minimum threshold set by the parent component the EaMultiSelectDropdownComponent should not display the (Select All) option', () => {
+          component.config.showSelectAllWhenMoreThan = 3;
+
+          component.ngDoCheck();
+
+          expect(component.showSelectAllOption).toBe(false);
+        });
+
+        it('the list is not multi-select enabled the EaMultiSelectDropdownComponent should not display the (Select All) option', () => {
+          component.config.allowMultiple = false;
+
+          component.ngDoCheck();
+
+          expect(component.showSelectAllOption).toBe(false);
+        });
+
+        it('the button was clicked while there were no options to display and the dropdown is configured to immediately open itself when it gets options then the list should be displayed', () => {
+          component.config.openWhenDataLoads = true;
+          component.failedToOpen = true;
+          spyOn(component, 'openList');
+
+          component.ngDoCheck();
+
+          expect(component.failedToOpen).toBe(false);
+          expect(component.openList).toHaveBeenCalledTimes(1);
+        });
+      });
+
+      describe('and there are more options than the minimum threshold set by the parent component, the parent component has configured the (Select All) option to be displayed, and the list is multi-select enabled', () => {
+        it('the EaMultiSelectDropdownComponent should display the (Select All) option', () => {
+          component.ngDoCheck();
+
+          expect(component.showSelectAllOption).toBe(true);
+        });
+
+        it('and the parent component has configured all options to be selected by default the EaMultiSelectDropdownComponent should select the (Select All) option', () => {
+          component.config.selectAllByDefault = true;
+
+          component.ngDoCheck();
+
+          expect(component.selectAllOption.isSelected).toBe(true);
+        });
+      });
+
+      it('should set the button text', () => {
+        updateButtonTextSpy.calls.reset();
+
+        component.ngDoCheck();
+
+        expect(updateButtonTextSpy).toHaveBeenCalledTimes(1);
       });
     });
 
-    describe('should set the allow multiple option', () => {
-      it('to the value provided separately when there is a value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          allowMultiple: false
+    describe('when the options have not changed', () => {
+      beforeEach(() => {
+        changes = {
+          forEachItem(fn: (r: any) => void): void {},
+          forEachPreviousItem(fn: (r: any) => void): void {},
+          forEachChangedItem(fn: (r: any) => void): void {},
+          forEachAddedItem(fn: (r: any) => void): void {},
+          forEachRemovedItem(fn: (r: any) => void): void {}
         };
-        component.allowMultiple = true;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.allowMultiple).toBe(true);
+        component.config.allowMultiple = true;
+        component.config.showSelectAllWhenMoreThan = 1;
+        component.config.addSelectAllOption = true;
+        component.showSelectAllOption = false;
       });
 
-      it('to the value provided on the config object when there is no value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          allowMultiple: false
-        };
-        component.allowMultiple = undefined;
+      it('the EaMultiSelectDropdownComponent should not determine whether to show or hide the (Select All) option', () => {
+        component.ngDoCheck();
 
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.allowMultiple).toBe(false);
+        expect(component.showSelectAllOption).toBe(false);
       });
 
-      it('to true when there is no value provided on the config or separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {};
-        component.allowMultiple = undefined;
+      it('the EaMultiSelectDropdownComponent should not select all options', () => {
+        component.config.options[0].isSelected = false;
+        component.config.options[1].isSelected = false;
+        component.config.selectAllByDefault = true;
 
-        // act
-        component.buildConfig();
-        // assert
-        expect(component.config.allowMultiple).toBe(true);
+        component.ngDoCheck();
+
+        expect(component.config.options[0].isSelected).toBe(false);
+        expect(component.config.options[1].isSelected).toBe(false);
+      });
+
+      it('the EaMultiSelectDropdownComponent should not select the (Select All) option', () => {
+        component.config.selectAllByDefault = true;
+
+        component.ngDoCheck();
+
+        expect(component.selectAllOption.isSelected).toBe(false);
+      });
+
+      it('should not set the button text', () => {
+        updateButtonTextSpy.calls.reset();
+
+        component.ngDoCheck();
+
+        expect(updateButtonTextSpy).not.toHaveBeenCalled();
       });
     });
 
-    describe('should set the button classes value', () => {
-      it('to the value provided separately when there is a value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          buttonClasses: ['config-class']
+    describe('when the empty text changes', () => {
+      beforeEach(() => {
+        changes = {
+          forEachItem(fn: (r: any) => void): void {},
+          forEachPreviousItem(fn: (r: any) => void): void {},
+          forEachChangedItem(fn: (r: any) => void): void {
+            fn({key: 'emptyText'});
+          },
+          forEachAddedItem(fn: (r: any) => void): void {},
+          forEachRemovedItem(fn: (r: any) => void): void {}
         };
-        component.buttonClasses = ['xyz', 'abc'];
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.buttonClasses).toEqual(['xyz', 'abc']);
+        component.config.allowMultiple = true;
+        component.config.showSelectAllWhenMoreThan = 1;
+        component.config.addSelectAllOption = true;
+        expect(component.selectAllOption.isSelected).toBe(false);
       });
 
-      it('to the value provided on the config object when there is no value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          buttonClasses: ['config-class']
-        };
-        component.buttonClasses = undefined;
+      it('and there are no options the button text should be updated', () => {
+        updateButtonTextSpy.calls.reset();
+        component.config.options = [];
 
-        // act
-        component.buildConfig();
+        component.ngDoCheck();
 
-        // assert
-        expect(component.config.buttonClasses).toEqual(['config-class']);
+        expect(updateButtonTextSpy).toHaveBeenCalledTimes(1);
       });
 
-      it('to an expected default value when there is no value provided on the config or separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {};
-        component.buttonClasses = undefined;
+      it('and there are options the button text should not be updated', () => {
+        updateButtonTextSpy.calls.reset();
 
-        // act
-        component.buildConfig();
+        component.ngDoCheck();
 
-        // assert
-        expect(component.config.buttonClasses).toEqual(['btn', 'btn-default']);
-      });
-    });
-
-    describe('should set the button icon classes value', () => {
-      it('to the value provided separately when there is a value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          buttonIconClasses: ['config-class']
-        };
-        component.buttonIconClasses = ['123', '789'];
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.buttonIconClasses).toEqual(['123', '789']);
-      });
-
-      it('to the value provided on the config object when there is no value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          buttonIconClasses: ['config-class']
-        };
-        component.buttonIconClasses = undefined;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.buttonIconClasses).toEqual(['config-class']);
-      });
-
-      it('to an expected default value when there is no value provided on the config or separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {};
-        component.buttonIconClasses = undefined;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.buttonIconClasses).toEqual(['fa', 'fa-angle-down', 'align-self-center']);
-      });
-    });
-
-    describe('should set the button text style value', () => {
-      it('to the value provided separately when there is a value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          buttonTextStyles: {'blah': 2}
-        };
-        component.buttonTextStyles = {'boo': 1};
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.buttonTextStyles).toEqual({'boo': 1});
-      });
-
-      it('to the value provided on the config object when there is no value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          buttonTextStyles: {'blah': 2}
-        };
-        component.buttonTextStyles = undefined;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.buttonTextStyles).toEqual({'blah': 2});
-      });
-
-      it('to an expected default value when there is no value provided on the config or separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {};
-        component.buttonTextStyles = undefined;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.buttonTextStyles).toEqual({'flex': 1});
-      });
-    });
-
-    describe('should set the button wrapper classes value', () => {
-      it('to the value provided separately when there is a value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          buttonWrapperClasses: ['config-class']
-        };
-        component.buttonWrapperClasses = ['123', '789'];
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.buttonWrapperClasses).toEqual(['123', '789']);
-      });
-
-      it('to the value provided on the config object when there is no value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          buttonWrapperClasses: ['config-class']
-        };
-        component.buttonWrapperClasses = undefined;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.buttonWrapperClasses).toEqual(['config-class']);
-      });
-
-      it('to an expected default value when there is no value provided on the config or separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {};
-        component.buttonWrapperClasses = undefined;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.buttonWrapperClasses).toEqual(['d-flex']);
-      });
-    });
-
-    describe('should set the selected option classes value', () => {
-      it('to the value provided separately when there is a value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          checkedClasses: ['config-class']
-        };
-        component.checkedClasses = ['123', '789'];
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.checkedClasses).toEqual(['123', '789']);
-      });
-
-      it('to the value provided on the config object when there is no value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          checkedClasses: ['config-class']
-        };
-        component.checkedClasses = undefined;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.checkedClasses).toEqual(['config-class']);
-      });
-
-      it('to an expected default value when there is no value provided on the config or separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {};
-        component.checkedClasses = undefined;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.checkedClasses).toEqual(['fa', 'fa-check-square-o']);
-      });
-    });
-
-    describe('should set the container classes value', () => {
-      it('to the value provided separately when there is a value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          containerClasses: ['config-class']
-        };
-        component.containerClasses = ['123', '789'];
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.containerClasses).toEqual(['123', '789']);
-      });
-
-      it('to the value provided on the config object when there is no value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          containerClasses: ['config-class']
-        };
-        component.containerClasses = undefined;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.containerClasses).toEqual(['config-class']);
-      });
-
-      it('to an empty set when there is no value provided on the config or separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {};
-        component.containerClasses = undefined;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.containerClasses).toEqual([]);
-      });
-    });
-
-    describe('should set the empty text value', () => {
-      it('to the value provided separately when there is a value provided separately', () => {
-        component.config = <EaMultiSelectDropdownConfig>{
-          emptyText: 'Nothing to see here'
-        };
-        component.emptyText = 'Bummer';
-
-        component.buildConfig();
-
-        expect(component.config.emptyText).toBe('Bummer');
-      });
-
-      it('to the value provided on the config object when there is no value provided separately', () => {
-        component.config = <EaMultiSelectDropdownConfig>{
-          emptyText: 'Nothing to see here'
-        };
-
-        component.buildConfig();
-
-        expect(component.config.emptyText).toBe('Nothing to see here');
-      });
-
-      it('to null when there is no value provided on the config or separately', () => {
-        component.buildConfig();
-
-        expect(component.config.emptyText).toBe(null);
-      });
-    });
-
-    describe('should set the list classes value', () => {
-      it('to the value provided separately when there is a value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          listClasses: ['config-class']
-        };
-        component.listClasses = ['123', '789'];
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.listClasses).toEqual(['123', '789']);
-      });
-
-      it('to the value provided on the config object when there is no value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          listClasses: ['config-class']
-        };
-        component.listClasses = undefined;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.listClasses).toEqual(['config-class']);
-      });
-
-      it('to an empty set when there is no value provided on the config or separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {};
-        component.listClasses = undefined;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.listClasses).toEqual([]);
-      });
-    });
-
-    describe('should set the option classes value', () => {
-      it('to the value provided separately when there is a value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          optionClasses: ['config-class']
-        };
-        component.optionClasses = ['123', '789'];
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.optionClasses).toEqual(['123', '789']);
-      });
-
-      it('to the value provided on the config object when there is no value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          optionClasses: ['config-class']
-        };
-        component.optionClasses = undefined;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.optionClasses).toEqual(['config-class']);
-      });
-
-      it('to an expected default value when there is no value provided on the config or separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {};
-        component.optionClasses = undefined;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.optionClasses).toEqual(['multi-select-option']);
-      });
-    });
-
-    describe('should set the select all by default option', () => {
-      it('to the value provided separately when there is a value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          selectAllByDefault: false
-        };
-        component.selectAllByDefault = true;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.selectAllByDefault).toBe(true);
-      });
-
-      it('to the value provided on the config object when there is no value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          selectAllByDefault: false
-        };
-        component.selectAllByDefault = undefined;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.selectAllByDefault).toBe(false);
-      });
-
-      it('to false when there is no value provided on the config or separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {};
-        component.selectAllByDefault = undefined;
-
-        // act
-        component.buildConfig();
-        // assert
-        expect(component.config.selectAllByDefault).toBe(false);
-      });
-    });
-
-    describe('should set the select all text', () => {
-      it('to the value provided separately when there is a value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          selectAllText: 'sturgeon'
-        };
-        component.selectAllText = 'trout';
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.selectAllText).toEqual('trout');
-      });
-
-      it('to the value provided on the config object when there is no value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          selectAllText: 'sturgeon'
-        };
-        component.selectAllText = undefined;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.selectAllText).toBe('sturgeon');
-      });
-
-      it('to an expected default value when there is no value provided on the config or separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {};
-        component.selectAllText = undefined;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.selectAllText).toBe('(Select All)');
-      });
-    });
-
-    describe('should set the select all text', () => {
-      it('to the value provided separately when there is a value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          selectAllValue: 'sturgeon'
-        };
-        component.selectAllValue = 'trout';
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.selectAllValue).toEqual('trout');
-      });
-
-      it('to the value provided on the config object when there is no value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          selectAllValue: 'sturgeon'
-        };
-        component.selectAllValue = undefined;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.selectAllValue).toBe('sturgeon');
-      });
-
-      it('to null when there is no value provided on the config or separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {};
-        component.selectAllValue = undefined;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.selectAllValue).toBeNull();
-      });
-    });
-
-    describe('should set the unselected option classes value', () => {
-      it('to the value provided separately when there is a value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          uncheckedClasses: ['config-class']
-        };
-        component.uncheckedClasses = ['123', '789'];
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.uncheckedClasses).toEqual(['123', '789']);
-      });
-
-      it('to the value provided on the config object when there is no value provided separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {
-          uncheckedClasses: ['config-class']
-        };
-        component.uncheckedClasses = undefined;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.uncheckedClasses).toEqual(['config-class']);
-      });
-
-      it('to an expected default value when there is no value provided on the config or separately', () => {
-        // arrange
-        component.config = <EaMultiSelectDropdownConfig> {};
-        component.uncheckedClasses = undefined;
-
-        // act
-        component.buildConfig();
-
-        // assert
-        expect(component.config.uncheckedClasses).toEqual(['fa', 'fa-square-o']);
+        expect(updateButtonTextSpy).not.toHaveBeenCalled();
       });
     });
   });
 
-  describe('close', () => {
+  describe('closeList', () => {
     beforeEach(() => {
       spyOn(component.closed, 'emit');
       spyOn(component.changed, 'emit');
+      component.isOpen = true;
+      component.originals = [{
+        id: 1, isSelected: true
+      }, {
+        id: 2, isSelected: true
+      }, {
+        id: 3, isSelected: false
+      }];
     });
 
-    it('should hide the list of options', () => {
-      // arrange
+    it('should close the list', () => {
       component.isOpen = true;
 
-      // act
-      component.close();
+      component.closeList();
 
-      // assert
       expect(component.isOpen).toBe(false);
     });
 
-    it('should emit the selected options when the list was open before being closed', () => {
-      // arrange
-      component.isOpen = true;
-      component.options = [
-        <EaMultiSelectDropdownOption>{
-          display: 'Cinderella',
-          id: 'cd',
-          isSelected: true,
-          value: 'Cinderella'
-        },
-        <EaMultiSelectDropdownOption>{
-          display: 'Snow White',
-          id: 'sw',
-          isSelected: false,
-          value: 'Snow White'
-        },
-        <EaMultiSelectDropdownOption>{
-          display: 'Briar Rose',
-          id: 'br',
-          isSelected: false,
-          value: 'Briar Rose'
-        }
-      ];
+    it('should notify all listeners that the list has been closed', () => {
+      component.id = 'fun-happy-times';
 
-      // act
-      component.close();
+      component.toggleList();
 
-      // assert
       expect(component.closed.emit).toHaveBeenCalledTimes(1);
-      expect(component.closed.emit).toHaveBeenCalledWith(component.options);
+      expect(component.closed.emit).toHaveBeenCalledWith('fun-happy-times');
     });
 
-    it('should not emit the selected options when the list was closed before being closed', () => {
-      // arrange
-      component.isOpen = false;
-      component.options = [
-        <EaMultiSelectDropdownOption>{
-          display: 'Cinderella',
-          id: 'cd',
-          isSelected: true,
-          value: 'Cinderella'
-        },
-        <EaMultiSelectDropdownOption>{
-          display: 'Snow White',
-          id: 'sw',
-          isSelected: false,
-          value: 'Snow White'
-        },
-        <EaMultiSelectDropdownOption>{
-          display: 'Briar Rose',
-          id: 'br',
-          isSelected: false,
-          value: 'Briar Rose'
-        }
-      ];
+    it('should notify all listeners of all options that were toggled while the list was open when any options have been toggled', () => {
+      component.config.options[0].isSelected = false;
+      component.config.options[2].isSelected = true;
+      component.id = 'component-id';
 
-      // act
-      component.close();
-
-      // assert
-      expect(component.closed.emit).not.toHaveBeenCalled();
-    });
-
-    it('should emit false when a false is passed', () => {
-      component.isOpen = true;
-      component.trackedChanges = [
-        { currentValue: false, key: 'first-option', originalValue: false },
-        { currentValue: true, key: 'second-option', originalValue: false },
-        { currentValue: false, key: 'third-option', originalValue: false }
-      ];
-
-      component.close(false);
+      component.toggleList();
 
       expect(component.changed.emit).toHaveBeenCalledTimes(1);
-      expect(component.changed.emit).toHaveBeenCalledWith(false);
-    });
-
-    it('should emit true when a true is passed', () => {
-      component.isOpen = true;
-      component.trackedChanges = [
-        { currentValue: false, key: 'first-option', originalValue: false },
-        { currentValue: false, key: 'second-option', originalValue: false },
-        { currentValue: false, key: 'third-option', originalValue: false }
-      ];
-
-      component.close(true);
-
-      expect(component.changed.emit).toHaveBeenCalledTimes(1);
-      expect(component.changed.emit).toHaveBeenCalledWith(true);
-    });
-
-    it('should emit true when an option that was selected when the dropdown opened is not selected when the dropdown closes', () => {
-      component.isOpen = true;
-      component.trackedChanges = [
-        { currentValue: false, key: 'first-option', originalValue: false },
-        { currentValue: true, key: 'second-option', originalValue: false },
-        { currentValue: false, key: 'third-option', originalValue: false }
-      ];
-
-      component.close();
-
-      expect(component.changed.emit).toHaveBeenCalledTimes(1);
-      expect(component.changed.emit).toHaveBeenCalledWith(true);
-    });
-
-    it('should emit true when an option that was not selected when the dropdown opened is selected when the dropdown closes', () => {
-      component.isOpen = true;
-      component.trackedChanges = [
-        { currentValue: false, key: 'first-option', originalValue: true },
-        { currentValue: true, key: 'second-option', originalValue: true },
-        { currentValue: false, key: 'third-option', originalValue: false }
-      ];
-
-      component.close();
-
-      expect(component.changed.emit).toHaveBeenCalledTimes(1);
-      expect(component.changed.emit).toHaveBeenCalledWith(true);
-    });
-
-    it('should emit false when all of the options\' selections are the same as they were when the dropdown opened', () => {
-      component.isOpen = true;
-      component.trackedChanges = [
-        { currentValue: false, key: 'first-option', originalValue: false },
-        { currentValue: true, key: 'second-option', originalValue: true },
-        { currentValue: false, key: 'third-option', originalValue: false }
-      ];
-
-      component.close();
-
-      expect(component.changed.emit).toHaveBeenCalledTimes(1);
-      expect(component.changed.emit).toHaveBeenCalledWith(false);
-    });
-  });
-
-  describe('select', () => {
-    beforeEach(() => {
-      // arrange
-      spyOn(component.selected, 'emit');
-      spyOn(component, 'close');
-      component.options = defaultOptions;
-      updateButtonTextSpy.calls.reset();
-    });
-
-    it('should select the option when the option was not previously selected', () => {
-      // act
-      component.select(3);
-
-      // assert
-      expect(component.options[0].isSelected).toBe(false);
-      expect(component.options[1].isSelected).toBe(false);
-      expect(component.options[2].isSelected).toBe(true);
-    });
-
-    it('should de-select the option when the option was previously selected', () => {
-      // arrange
-      component.options[0].isSelected = true;
-      component.options[1].isSelected = true;
-      component.options[2].isSelected = true;
-
-      // act
-      component.select(2);
-
-      // assert
-      expect(component.options[1].isSelected).toBe(false);
-    });
-
-    it('should emit the selected option', () => {
-      // arrange
-      const expectedArgument = Object.assign({}, defaultOptions[0]);
-      expectedArgument.isSelected = true;
-
-      // act
-      component.select(1);
-
-      // assert
-      expect(component.selected.emit).toHaveBeenCalledTimes(1);
-      expect(component.selected.emit).toHaveBeenCalledWith(expectedArgument);
-    });
-
-    it('should update the button text', () => {
-      // act
-      component.select(1);
-
-      // assert
-      expect(updateButtonTextSpy).toHaveBeenCalledTimes(1);
-    });
-
-    it('should update the select all option when the select all option is included and the selected option is the last option to be selected',
-      () => {
-        // arrange
-        component.config.addSelectAllOption = true;
-        component.selectAllOption = {
-          display: '(Select All)',
-          id: 'select-all',
-          isSelected: false,
-          value: 'Select-All'
-        };
-        component.options[0].isSelected = true;
-        component.options[1].isSelected = true;
-
-        // act
-        component.select(3);
-
-        // assert
-        expect(component.selectAllOption.isSelected).toBe(true);
-      }
-    );
-
-    it('should update the select all option when all options are selected and an option is de-selected', () => {
-      // arrange
-      component.config.addSelectAllOption = true;
-      component.selectAllOption = {
-        display: '(Select All)',
-        id: 'select-all',
-        isSelected: true,
-        value: 'Select-All'
-      };
-      component.options[0].isSelected = true;
-      component.options[1].isSelected = true;
-      component.options[2].isSelected = true;
-
-      // act
-      component.select(3);
-
-      // assert
-      expect(component.selectAllOption.isSelected).toBe(false);
-    });
-
-    it('should not update the select all option when the select all option is not included', () => {
-      // arrange
-      component.addSelectAllOption = false;
-      component.selectAllOption = <EaMultiSelectDropdownOption>{
-        id: 'select-all',
-        isSelected: false
-      };
-      component.options[0].isSelected = true;
-      component.options[1].isSelected = true;
-
-      // act
-      component.select(3);
-
-      // assert
-      expect(component.selectAllOption.isSelected).toBe(false);
-    });
-
-    it('should close the list of options when multiple selections are not allowed', () => {
-      // arrange
-      component.config.allowMultiple = false;
-
-      // act
-      component.select(3);
-
-      // assert
-      expect(component.close).toHaveBeenCalledTimes(1);
-      expect(component.close).toHaveBeenCalledWith(true);
-    });
-
-    it('should de-select all other options when multiple selections are not allowed', () => {
-      // arrange
-      component.config.allowMultiple = false;
-      component.options[0].isSelected = true;
-      component.options[2].isSelected = true;
-
-      // act
-      component.select(2);
-
-      // assert
-      expect(component.options[0].isSelected).toBe(false);
-      expect(component.options[1].isSelected).toBe(true);
-      expect(component.options[2].isSelected).toBe(false);
-    });
-  });
-
-  describe('selectAll', () => {
-    beforeEach(() => {
-      component.addSelectAllOption = true;
-      component.selectAllOption = {
-        display: '(Select All)',
-        id: 'select-all',
-        isSelected: false,
-        value: 'Select-All'
-      };
-      component.options = defaultOptions;
-      updateButtonTextSpy.calls.reset();
-
-      spyOn(component.allSelected, 'emit');
-    });
-
-    it('should indicate that the Select All option has been selected when the Select All indicator is not already showing as selected', () => {
-      component.selectAll();
-
-      expect(component.selectAllOption.isSelected).toBe(true);
-    });
-
-    it('should indicate that the Select All option has been selected when the Select All indicator is already showing as selected', () => {
-      component.selectAllOption.isSelected = true;
-
-      component.selectAll();
-
-      expect(component.selectAllOption.isSelected).toBe(true);
-    });
-
-    it('should indicate that every option has been selected when the Select All indicator is not already showing as selected', () => {
-      component.selectAll();
-
-      component.options.forEach(o => {
-        expect(o.isSelected).toBe(true);
+      expect(component.changed.emit).toHaveBeenCalledWith({
+        id: 'component-id',
+        changes: [
+          { id: 1, display: 'First Option', value: '[First].[Option]', isSelected: false },
+          { id: 3, display: 'Third Option', value: '[Third].[Option]', isSelected: true }
+        ]
       });
     });
 
-    it('should indicate that every option has been selected when the Select All indicator is already showing as selected', () => {
-      component.selectAllOption.isSelected = true;
+    it('should not notify any listeners of any changed options when no options were toggled while the list was open', () => {
+      component.toggleList();
 
-      component.selectAll();
-
-      component.options.forEach(o => {
-        expect(o.isSelected).toBe(true);
-      });
+      expect(component.changed.emit).not.toHaveBeenCalled();
     });
 
-    it('should emit the all selected option', () => {
-      const expectedArgument = Object.assign({}, component.selectAllOption);
-      expectedArgument.isSelected = true;
+    it('should reset the starting values of all options to prevent other dropdowns on the same parent component from triggering a semi-infinite change loop', () => {
+      component.config.options[0].isSelected = false;
+      component.config.options[1].isSelected = false;
+      component.config.options[2].isSelected =  true;
+      component.closeList();
 
-      component.selectAll();
-
-      expect(component.allSelected.emit).toHaveBeenCalledTimes(1);
-      expect(component.allSelected.emit).toHaveBeenCalledWith(expectedArgument);
+      expect(component.originals).toEqual([{
+        id: 1, isSelected: false
+      }, {
+        id: 2, isSelected: false
+      }, {
+        id: 3, isSelected: true
+      }]);
     });
 
-    it('should update the button text', () => {
-      component.selectAll();
+    it('should reset the indicator that the dropdown should automatically open (if so configured) once data has been loaded', () => {
+      component.failedToOpen = true;
 
-      expect(updateButtonTextSpy).toHaveBeenCalledTimes(1);
+      component.closeList();
+
+      expect(component.failedToOpen).toBe(false);
     });
   });
 
-  describe('toggle', () => {
-    beforeEach(() => {
-      // arrange
-      spyOn(multiSelectDropdownService, 'closeOthers');
-      spyOn(component.closed, 'emit');
-      spyOn(component.changed, 'emit');
+  describe('openList', () => {
+    it('should not display the list when there are no selectable options', () => {
+      component.config.options = [];
 
-      component.options = [
-        {display: 'First Option', id: 'first-option', isSelected: true, value: '[First].[Option]'}
-      ];
+      component.toggleList();
+
+      expect(component.isOpen).toBe(false);
     });
 
-    it('should display the list values when the list values were previously not displayed and there are values to display', () => {
-      // arrange
-      component.isOpen = false;
+    it('should store that the dropdown should automatically open (if so configured) once data has been loaded', () => {
+      component.failedToOpen = false;
+      component.config.options = [];
 
-      // act
-      component.toggle();
+      component.openList();
 
-      // assert
+      expect(component.failedToOpen).toBe(true);
+    });
+
+    it('should display the list when there are selectable options', () => {
+      component.toggleList();
+
       expect(component.isOpen).toBe(true);
     });
 
-    it('should not display the list values when there are no values to display', () => {
-      // arrange
-      component.isOpen = false;
-      component.options = [];
+    it('should store the starting values of each option for later use', () => {
+      component.originals = [];
 
-      // act
-      component.toggle();
+      component.toggleList();
 
-      // assert
-      expect(component.isOpen).toBe(false);
+      expect(component.originals).toEqual([{
+        id: 1, isSelected: true
+      }, {
+        id: 2, isSelected: true
+      }, {
+        id: 3, isSelected: false
+      }]);
     });
 
-    it('should notify the service to close other lists when there are no values to display', () => {
-      component.isOpen = false;
-      component.options = [];
+    it('should notify all listeners that the list has been opened', () => {
+      component.id = 'happy-fun-times';
+      spyOn(component.opened, 'emit');
 
-      component.toggle();
+      component.toggleList();
 
-      expect(multiSelectDropdownService.closeOthers).toHaveBeenCalledTimes(1);
-    });
-
-    it('should hide the list values when the list values were previously displayed', () => {
-      // arrange
-      component.isOpen = true;
-
-      // act
-      component.toggle();
-
-      // assert
-      expect(component.isOpen).toBe(false);
-    });
-
-    it('should notify the service that the list has been opened', () => {
-      // arrange
-      component.isOpen = false;
-
-      // act
-      component.toggle();
-
-      // assert
-      expect(multiSelectDropdownService.closeOthers).toHaveBeenCalledTimes(1);
-    });
-
-    it('should not notify the service that the list has been closed', () => {
-      // arrange
-      component.isOpen = true;
-
-      // act
-      component.toggle();
-
-      // assert
-      expect(multiSelectDropdownService.closeOthers).not.toHaveBeenCalled();
-    });
-
-    it('should emit the selected options when the list has been closed', () => {
-      // arrange
-      component.isOpen = true;
-      component.options = [
-        <EaMultiSelectDropdownOption>{
-          display: 'Cinderella',
-          id: 'cd',
-          isSelected: true,
-          value: 'Cinderella'
-        },
-        <EaMultiSelectDropdownOption>{
-          display: 'Snow White',
-          id: 'sw',
-          isSelected: false,
-          value: 'Snow White'
-        },
-        <EaMultiSelectDropdownOption>{
-          display: 'Briar Rose',
-          id: 'br',
-          isSelected: false,
-          value: 'Briar Rose'
-        }
-      ];
-
-      // act
-      component.toggle();
-
-      // assert
-      expect(component.closed.emit).toHaveBeenCalledTimes(1);
-      expect(component.closed.emit).toHaveBeenCalledWith(component.options);
-    });
-
-    it('should not emit the selected options when the list has been opened', () => {
-      // arrange
-      component.isOpen = false;
-      component.options = [
-        <EaMultiSelectDropdownOption>{
-          display: 'Cinderella',
-          id: 'cd',
-          isSelected: true,
-          value: 'Cinderella'
-        },
-        <EaMultiSelectDropdownOption>{
-          display: 'Snow White',
-          id: 'sw',
-          isSelected: false,
-          value: 'Snow White'
-        },
-        <EaMultiSelectDropdownOption>{
-          display: 'Briar Rose',
-          id: 'br',
-          isSelected: false,
-          value: 'Briar Rose'
-        }
-      ];
-
-      // act
-      component.toggle();
-
-      // assert
-      expect(component.closed.emit).not.toHaveBeenCalled();
-    });
-
-    it('should reset the tracked values for the options', () => {
-      component.trackedChanges = [
-        { currentValue: false, key: 'first-option', originalValue: true },
-        { currentValue: true, key: 'second-option', originalValue: false },
-        { currentValue: false, key: 'third-option', originalValue: true }
-      ];
-      component.options = [
-        {display: 'First Option', id: 'first-option', isSelected: false, value: '[First].[Option]'},
-        {display: 'Second Option', id: 'second-option', isSelected: true, value: '[Second].[Option]'},
-        {display: 'Third Option', id: 'third-option', isSelected: false, value: '[Third].[Option]'}
-      ];
-
-      component.toggle();
-
-      expect(component.trackedChanges).toEqual([
-        { currentValue: false, key: 'first-option', originalValue: false },
-        { currentValue: true, key: 'second-option', originalValue: true },
-        { currentValue: false, key: 'third-option', originalValue: false }
-      ]);
-    });
-
-    it('should store the initial selected value of each option', () => {
-      component.options = [
-        {display: 'First Option', id: 'first-option', isSelected: false, value: '[First].[Option]'},
-        {display: 'Second Option', id: 'second-option', isSelected: true, value: '[Second].[Option]'},
-        {display: 'Third Option', id: 'third-option', isSelected: false, value: '[Third].[Option]'}
-      ];
-
-      component.toggle();
-
-      expect(component.trackedChanges).toEqual([
-        { currentValue: false, key: 'first-option', originalValue: false },
-        { currentValue: true, key: 'second-option', originalValue: true },
-        { currentValue: false, key: 'third-option', originalValue: false }
-      ]);
-    });
-
-    it('should emit true when an option that was selected when the dropdown opened is not selected when the dropdown closes', () => {
-      component.isOpen = true;
-      component.trackedChanges = [
-        { currentValue: false, key: 'first-option', originalValue: false },
-        { currentValue: true, key: 'second-option', originalValue: false },
-        { currentValue: false, key: 'third-option', originalValue: false }
-      ];
-
-      component.toggle();
-
-      expect(component.changed.emit).toHaveBeenCalledTimes(1);
-      expect(component.changed.emit).toHaveBeenCalledWith(true);
-    });
-
-    it('should emit true when an option that was not selected when the dropdown opened is selected when the dropdown closes', () => {
-      component.isOpen = true;
-      component.trackedChanges = [
-        { currentValue: false, key: 'first-option', originalValue: true },
-        { currentValue: true, key: 'second-option', originalValue: true },
-        { currentValue: false, key: 'third-option', originalValue: false }
-      ];
-
-      component.toggle();
-
-      expect(component.changed.emit).toHaveBeenCalledTimes(1);
-      expect(component.changed.emit).toHaveBeenCalledWith(true);
-    });
-
-    it('should emit false when all of the options\' selections are the same as they were when the dropdown opened', () => {
-      component.isOpen = true;
-      component.trackedChanges = [
-        { currentValue: false, key: 'first-option', originalValue: false },
-        { currentValue: true, key: 'second-option', originalValue: true },
-        { currentValue: false, key: 'third-option', originalValue: false }
-      ];
-
-      component.toggle();
-
-      expect(component.changed.emit).toHaveBeenCalledTimes(1);
-      expect(component.changed.emit).toHaveBeenCalledWith(false);
+      expect(component.opened.emit).toHaveBeenCalledTimes(1);
+      expect(component.opened.emit).toHaveBeenCalledWith('happy-fun-times');
     });
   });
 
-  describe('toggleAll', () => {
+  describe('selectAllByDefault', () => {
     beforeEach(() => {
-      component.addSelectAllOption = true;
-      component.selectAllOption = {
-        display: '(Select All)',
-        id: 'select-all',
-        isSelected: false,
-        value: 'Select-All'
-      };
-      component.options = defaultOptions;
-      updateButtonTextSpy.calls.reset();
-
-      spyOn(component.allSelected, 'emit');
+      component.config.options[0].isSelected = false;
+      component.config.options[1].isSelected = false;
     });
 
-    it('should select the select all option when the select all option is not selected', () => {
-      // act
-      component.toggleAll();
+    describe('when all options should be selected by default', () => {
+      beforeEach(() => {
+        component.config.selectAllByDefault = true;
+        component.selectAllOption.isSelected = false;
+      });
 
-      // assert
-      expect(component.selectAllOption.isSelected).toBe(true);
-    });
+      it('all options should be selected', () => {
+        component.selectAllByDefault();
 
-    it('should de-select the select all option when the select all option is selected', () => {
-      // arrange
-      component.selectAllOption.isSelected = true;
+        component.config.options.forEach(o => expect(o.isSelected).toBe(true));
+      });
 
-      // act
-      component.toggleAll();
+      it('the (Select All) option should be selected', () => {
+        component.selectAllByDefault();
 
-      // assert
-      expect(component.selectAllOption.isSelected).toBe(false);
-    });
-
-    it('should select all options when the select all option is selected', () => {
-      // act
-      component.toggleAll();
-
-      // assert
-      component.options.forEach(o => {
-        expect(o.isSelected).toBe(true);
+        expect(component.selectAllOption.isSelected).toBe(true);
       });
     });
 
-    it('should de-select all options when the select all option is de-selected', () => {
-      // arrange
-      component.selectAllOption.isSelected = true;
-      component.options.forEach(o => {
-        o.isSelected = true;
+    describe('when all options should not be selected by default', () => {
+      beforeEach(() => {
+        component.config.selectAllByDefault = false;
+        component.selectAllOption.isSelected = false;
       });
 
-      // act
-      component.toggleAll();
+      it('all options should not be selected', () => {
+        component.selectAllByDefault();
 
-      // assert
-      component.options.forEach(o => {
-        expect(o.isSelected).toBe(false);
+        component.config.options.forEach(o => expect(o.isSelected).toBe(false));
+      });
+
+      it('the (Select All) option should not be selected', () => {
+        component.selectAllByDefault();
+
+        expect(component.selectAllOption.isSelected).toBe(false);
+      });
+    });
+  });
+
+  describe('toggleList', () => {
+    it('should open the list when it is closed', () => {
+      component.isOpen = false;
+      spyOn(component, 'openList');
+
+      component.toggleList();
+
+      expect(component.openList).toHaveBeenCalledTimes(1);
+    });
+
+    it('should close the list when it is open', () => {
+      component.isOpen = true;
+      spyOn(component, 'closeList');
+
+      component.toggleList();
+
+      expect(component.closeList).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('toggleOption', () => {
+    beforeEach(() => {
+      component.showSelectAllOption = true;
+    });
+
+    describe('when the (Select All) option is toggled', () => {
+      describe('and it is currently not selected', () => {
+        beforeEach(() => {
+          component.config.options[0].isSelected = false;
+          component.config.options[1].isSelected = false;
+          component.selectAllOption.isSelected = false;
+
+          component.toggleOption('select-all');
+        });
+
+        it('the (Select All) option should be selected', () => {
+          expect(component.selectAllOption.isSelected).toBe(true);
+        });
+
+        it('every option should be selected', () => {
+          component.config.options.forEach(o => expect(o.isSelected).toBe(true));
+        });
+      });
+
+      describe('and it is currently selected', () => {
+        beforeEach(() => {
+          component.config.options[2].isSelected = true;
+          component.selectAllOption.isSelected = true;
+
+          component.toggleOption('select-all');
+        });
+
+        it('the (Select All) option should be de-selected', () => {
+          expect(component.selectAllOption.isSelected).toBe(false);
+        });
+
+        it('every option should be de-selected', () => {
+          component.config.options.forEach(o => expect(o.isSelected).toBe(false));
+        });
       });
     });
 
-    it('should emit the all selected option', () => {
-      // arrange
-      const expectedArgument = Object.assign({}, component.selectAllOption);
-      expectedArgument.isSelected = true;
+    describe('when an option is toggled', () => {
+      describe('and it is currently selected', () => {
+        it('it should be de-selected', () => {
+          component.toggleOption(1);
 
-      // act
-      component.toggleAll();
+          expect(component.config.options[0].isSelected).toBe(false);
+        });
 
-      // assert
-      expect(component.allSelected.emit).toHaveBeenCalledTimes(1);
-      expect(component.allSelected.emit).toHaveBeenCalledWith(expectedArgument);
+        it('and the (Select All) option is displayed and selected, the (Select All) option should be de-selected', () => {
+          component.selectAllOption.isSelected = true;
+
+          component.toggleOption(1);
+
+          expect(component.selectAllOption.isSelected).toBe(false);
+        });
+
+       describe('and the dropdown is not multi-select enabled', () => {
+          beforeEach(() => {
+            spyOn(component, 'toggleList');
+            component.config.allowMultiple = false;
+          });
+
+          it('the list of options should remain open', () => {
+            component.toggleOption(1);
+
+            expect(component.toggleList).not.toHaveBeenCalled();
+          });
+
+          it('all other options should be left alone', () => {
+            component.toggleOption(1);
+
+            expect(component.config.options[1].isSelected).toBe(true);
+            expect(component.config.options[2].isSelected).toBe(false);
+          });
+        });
+      });
+
+      describe('and it is currently not selected', () => {
+        it('it should be selected', () => {
+          component.toggleOption(3);
+
+          expect(component.config.options[2].isSelected).toBe(true);
+        });
+
+        it('and the (Select All) option is displayed and the option being toggled is the last option to be selected, the (Select All) option should be selected', () => {
+          component.selectAllOption.isSelected = false;
+
+          component.toggleOption(3);
+
+          expect(component.selectAllOption.isSelected).toBe(true);
+        });
+
+        it('and the (Select All) option is displayed and the option being toggled is not the last option to be selected, the (Select All) option should remain de-selected', () => {
+          component.config.options[1].isSelected = false;
+          component.selectAllOption.isSelected = false;
+
+          component.toggleOption(3);
+
+          expect(component.selectAllOption.isSelected).toBe(false);
+        });
+
+        describe('and the dropdown is not multi-select enabled', () => {
+          beforeEach(() => {
+            spyOn(component, 'toggleList');
+            component.config.allowMultiple = false;
+          });
+
+          it('the list of options should be hidden', () => {
+            component.toggleOption(3);
+
+            expect(component.toggleList).toHaveBeenCalledTimes(1);
+          });
+
+          it('all other options should be de-selected', () => {
+            component.toggleOption(3);
+
+            expect(component.config.options[0].isSelected).toBe(false);
+            expect(component.config.options[1].isSelected).toBe(false);
+          });
+        });
+      });
     });
 
     it('should update the button text', () => {
-      // act
-      component.toggleAll();
+      spyOn(component, 'updateButtonText');
 
-      // assert
-      expect(updateButtonTextSpy).toHaveBeenCalledTimes(1);
+      component.toggleOption(1);
+
+      expect(component.updateButtonText).toHaveBeenCalledTimes(1);
     });
-  });
-});
-
-describe('EaMultiSelectDropdownComponent', () => {
-  let component: EaMultiSelectDropdownComponent;
-  let fixture: ComponentFixture<EaMultiSelectDropdownComponent>;
-
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ EaMultiSelectDropdownComponent ],
-      providers: [
-        {
-          provide: EaMultiSelectDropdownService,
-          useClass: MockEaMultiSelectDropdownService
-        }
-      ]
-    })
-    .compileComponents();
-  }));
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(EaMultiSelectDropdownComponent);
-    component = fixture.componentInstance;
-
-    component.options = [
-      { display: 'First Option', id: 1, isSelected: true, value: '[First].[Option]' },
-      { display: 'Second Option', id: 2, isSelected: false, value: '[Second].[Option]' },
-      { display: 'Third Option', id: 3, isSelected: true, value: '[Third].[Option]' }
-    ];
-
-    fixture.detectChanges();
   });
 
   describe('updateButtonText', () => {
-    it('should show the number of selected items in parentheses when more than one value is selected', () => {
-      // act
+    it('should show the configured empty text when there are no selectable options and there is an empty text configured', () => {
+      component.config.options = [];
+      component.config.emptyText = 'Nothing to Select';
+
       component.updateButtonText();
 
-      // assert
-      expect(component.buttonText.substring(0, 3)).toBe('(2)');
+      expect(component.buttonText).toBe('Nothing to Select');
     });
 
-    it('should show the selected values separated by commas when more than one value is selected', () => {
-      // act
+    it('should show nothing when there are no selectable options and there is no empty text configured', () => {
+      component.config.options = [];
+
       component.updateButtonText();
 
-      // assert
-      expect(component.buttonText).toBe('(2) First Option, Third Option');
+      expect(component.buttonText).toBe('');
     });
 
-    it('should show the selected value when only one value is selected', () => {
-      // arrange
-      component.options[0].isSelected = false;
+    it('should show the configured none selected text when no selectable options are selected and there is none selected text configured', () => {
+      component.config.options[0].isSelected = false;
+      component.config.options[1].isSelected = false;
+      component.config.noneSelectedText = 'None Selected';
 
-      // act
       component.updateButtonText();
 
-      // assert
-      expect(component.buttonText).toBe('Third Option');
+      expect(component.buttonText).toBe('None Selected');
     });
 
-    it('should show \'All\' when there is more than one option and all options are selected', () => {
-      // arrange
-      component.options[1].isSelected = true;
+    it('should show nothing when no selectable options are selected and there is no none selected text configured', () => {
+      component.config.options[0].isSelected = false;
+      component.config.options[1].isSelected = false;
 
-      // act
       component.updateButtonText();
 
-      // assert
+      expect(component.buttonText).toBe('');
+    });
+
+    it('should show \'All\' when all selectable options are selected', () => {
+      component.config.options.pop();
+
+      component.updateButtonText();
+
       expect(component.buttonText).toBe('All');
     });
 
-    it('should show the selected value when there is only one option and it is selected', () => {
-      component.options = [
-        { display: 'First Option', id: 1, isSelected: true, value: '[First].[Option]' }
-      ];
-
+    it('should show the number of selected options followed by a comma-separated list of the values of the selected options when more than one, but less than all, options are selected', () => {
       component.updateButtonText();
 
-      expect(component.buttonText).toBe('First Option');
-    });
-
-    it('should show the provided empty text when there are no values to select and there is an empty text provided', () => {
-      component.config.emptyText = 'Bummer';
-      component.options = [];
-
-      component.updateButtonText();
-
-      expect(component.buttonText).toBe('Bummer');
-    });
-
-    it('should be blank when there are no values to select and there is no empty text provided', () => {
-      component.options = [];
-
-      component.updateButtonText();
-
-      expect(component.buttonText).toBe('');
-    });
-
-    it('should be blank when no values are selected', () => {
-      // arrange
-      component.options[0].isSelected = false;
-      component.options[2].isSelected = false;
-
-      // act
-      component.updateButtonText();
-
-      // assert
-      expect(component.buttonText).toBe('');
+      expect(component.buttonText).toBe('(2) First Option, Second Option');
     });
   });
 });

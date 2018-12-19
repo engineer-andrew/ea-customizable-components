@@ -1,3 +1,5 @@
+import { EaMultiSelectDropdownOption } from './multi-select-dropdown-option.model';
+
 export interface EaMultiSelectDropdownConfig {
     addSelectAllOption?: boolean;
     allowMultiple?: boolean;
@@ -11,6 +13,10 @@ export interface EaMultiSelectDropdownConfig {
     id?: string | number;
     labelText?: string;
     listClasses?: string[];
+    noneSelectedText?: string;
+    showSelectAllWhenMoreThan?: number;
+    openWhenDataLoads?: boolean;
+    options?: EaMultiSelectDropdownOption[];
     optionClasses?: string[];
     selectAllByDefault?: boolean;
     selectAllText?: string;

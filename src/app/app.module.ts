@@ -1,8 +1,10 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
-import { AppComponent } from './app.component';
 import { EaMultiSelectDropdownModule } from '../../projects/multi-select-dropdown/src/public_api';
+import { EaEventListenerModule } from '../../projects/event-listener/src/public_api';
+
+import { AppComponent } from './app.component';
 
 @NgModule({
   declarations: [
@@ -10,7 +12,8 @@ import { EaMultiSelectDropdownModule } from '../../projects/multi-select-dropdow
   ],
   imports: [
     BrowserModule,
-    EaMultiSelectDropdownModule
+    EaMultiSelectDropdownModule,
+    EaEventListenerModule
   ],
   providers: [],
   bootstrap: [AppComponent]

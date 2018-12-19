@@ -24,6 +24,12 @@
       ],
       "multi-select-dropdown/*": [
         "dist/multi-select-dropdown/*"
+      ],
+      "event-listener": [
+        "dist/event-listener"
+      ],
+      "event-listener/*": [
+        "dist/event-listener/*"
       ]
     }
   }

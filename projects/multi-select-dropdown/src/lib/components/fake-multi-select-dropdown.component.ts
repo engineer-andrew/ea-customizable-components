@@ -1,39 +1,31 @@
-import { Component, AfterContentInit, OnChanges } from '@angular/core';
-import { EaMultiSelectDropdownOption } from '../models';
-import { EaMultiSelectDropdownComponent } from '../components/multi-select-dropdown.component';
+import { Component, OnInit, DoCheck } from '@angular/core';
+import { EaMultiSelectDropdownComponent } from './multi-select-dropdown.component';
 
 @Component({
   selector: 'ea-multi-select-dropdown',
   template: '<ng-template></ng-template>',
   styles: ['.multi-select-dropdown-container > label { width: 100%; }']
 })
-export class FakeEaMultiSelectDropdownComponent extends EaMultiSelectDropdownComponent implements AfterContentInit, OnChanges {
-  public buttonText: string;
-  public isOpen = false;
-  public selectAllOption: EaMultiSelectDropdownOption = <EaMultiSelectDropdownOption>{
-    id: 'select-all',
-    isSelected: false
-  };
-
-  ngAfterContentInit() {
+export class FakeEaMultiSelectDropdownComponent extends EaMultiSelectDropdownComponent implements OnInit, DoCheck {
+  ngOnInit(): void {
   }
 
-  ngOnChanges() {
+  ngDoCheck(): void {
   }
 
-  buildConfig(): void {
+  closeList(): void {
   }
 
-  close(): void {
+  openList(): void {
   }
 
-  select(id: number | string): void {
+  selectAllByDefault(): void {
   }
 
-  selectAll(): void {
+  toggleList(): void {
   }
 
-  toggle(): void {
+  toggleOption(id: string | number): void {
   }
 
   updateButtonText(): void {

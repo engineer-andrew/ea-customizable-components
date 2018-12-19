@@ -1,6 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EaMultiSelectDropdownComponent } from './multi-select-dropdown.component';
+import { EaMultiSelectDropdownComponent } from './ea-multi-select-dropdown.component';
 import { customMatchers, KeyValueDifferFactoryStub, KeyValueDifferStub, KeyValueDiffersStub } from '../../../../../src/testing';
 import { KeyValueDiffers } from '@angular/core';
 

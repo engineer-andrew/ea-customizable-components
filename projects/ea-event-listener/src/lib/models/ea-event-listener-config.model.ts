@@ -1,4 +1,4 @@
-import { EaEventListenerMatchable } from './';
+import { EaEventListenerMatchable } from '.';
 
 export interface EaEventListenerConfig {
   event: string;

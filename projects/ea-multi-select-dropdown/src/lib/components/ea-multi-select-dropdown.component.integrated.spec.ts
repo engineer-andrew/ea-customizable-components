@@ -1,7 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
-import { EaMultiSelectDropdownComponent } from './multi-select-dropdown.component';
+import { EaMultiSelectDropdownComponent } from './ea-multi-select-dropdown.component';
 import { EaMultiSelectDropdownOption } from '../models';
 import { customMatchers } from '../../../../../src/testing/custom-matchers';
 

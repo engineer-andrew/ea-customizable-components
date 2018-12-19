@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FakeEaMultiSelectDropdownComponent } from './components/fake-multi-select-dropdown.component';
+import { FakeEaMultiSelectDropdownComponent } from './components/fake-ea-multi-select-dropdown.component';
 
 @NgModule({
   imports: [
@@ -9,4 +9,4 @@ import { FakeEaMultiSelectDropdownComponent } from './components/fake-multi-sele
   declarations: [FakeEaMultiSelectDropdownComponent]
 })
 export class EaMultiSelectDropdownTestingModule {}
-export { FakeEaMultiSelectDropdownComponent } from './components/fake-multi-select-dropdown.component';
+export { FakeEaMultiSelectDropdownComponent } from './components/fake-ea-multi-select-dropdown.component';

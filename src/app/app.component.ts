@@ -4,8 +4,8 @@ import {
   EaMultiSelectDropdownComponent,
   EaMultiSelectDropdownConfig,
   EaMultiSelectDropdownChangedArgs
-} from '../../projects/multi-select-dropdown/src/public_api';
-import { EaEventListenerConfig } from '../../projects/event-listener/src/public_api';
+} from '../../projects/ea-multi-select-dropdown/src/public_api';
+import { EaEventListenerConfig } from '../../projects/ea-event-listener/src/public_api';
 
 @Component({
   selector: 'app-root',

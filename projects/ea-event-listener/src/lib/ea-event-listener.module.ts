@@ -1,6 +1,6 @@
 import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { EaEventListenerDirective } from './directives/event-listener.directive';
+import { EaEventListenerDirective } from './directives/ea-event-listener.directive';
 
 @NgModule({
   imports: [

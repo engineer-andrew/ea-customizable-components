@@ -19,17 +19,17 @@
       "dom"
     ],
     "paths": {
-      "multi-select-dropdown": [
-        "dist/multi-select-dropdown"
+      "ea-multi-select-dropdown": [
+        "dist/ea-multi-select-dropdown"
       ],
-      "multi-select-dropdown/*": [
-        "dist/multi-select-dropdown/*"
+      "ea-multi-select-dropdown/*": [
+        "dist/ea-multi-select-dropdown/*"
       ],
-      "event-listener": [
-        "dist/event-listener"
+      "ea-event-listener": [
+        "dist/ea-event-listener"
       ],
-      "event-listener/*": [
-        "dist/event-listener/*"
+      "ea-event-listener/*": [
+        "dist/ea-event-listener/*"
       ]
     }
   }

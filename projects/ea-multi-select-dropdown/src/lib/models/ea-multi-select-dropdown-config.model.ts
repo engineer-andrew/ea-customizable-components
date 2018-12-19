@@ -1,4 +1,4 @@
-import { EaMultiSelectDropdownOption } from './multi-select-dropdown-option.model';
+import { EaMultiSelectDropdownOption } from './ea-multi-select-dropdown-option.model';
 
 export interface EaMultiSelectDropdownConfig {
     addSelectAllOption?: boolean;

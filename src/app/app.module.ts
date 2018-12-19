@@ -1,7 +1,8 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
-import { EaMultiSelectDropdownModule } from './modules/multi-select-dropdown/multi-select-dropdown.module';
+import { EaMultiSelectDropdownModule } from '../../projects/ea-multi-select-dropdown/src/public_api';
+import { EaEventListenerModule } from '../../projects/ea-event-listener/src/public_api';
 
 import { AppComponent } from './app.component';
 
@@ -11,7 +12,8 @@ import { AppComponent } from './app.component';
   ],
   imports: [
     BrowserModule,
-    EaMultiSelectDropdownModule
+    EaMultiSelectDropdownModule,
+    EaEventListenerModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,56 +1,19 @@
-<div class="container mt-2" eaMultiSelectDropdownClose>
+<div class="container mt-2" (eaEventListener)="documentClickListener($event)" [config]="listenerConfig">
   <div class="row">
-    <div class="col-3 mb-4">
-      <ea-multi-select-dropdown
-        [id]="1"
-        (selected)="select($event)"
-        (changed)="log($event)"
-        [label]="'Princess'"
-        [options]="princesses"
-        [addSelectAllOption]="true"
-        [allowMultiple]="false">
-      </ea-multi-select-dropdown>
+    <div class="col mb-4">
+      <ea-multi-select-dropdown (failedToOpen)="failedToOpen($event)" [config]="country" [id]="1" (changed)="changed($event)" (closed)="closed($event)" (opened)="opened($event)"></ea-multi-select-dropdown>
     </div>
-    <div class="col-3 mb-4">
-      <ea-multi-select-dropdown
-        [id]="2"
-        (selected)="select($event)"
-        [label]="'Creatures'"
-        [options]="fantasyCreatures"
-        [addSelectAllOption]="true"
-        [selectAllText]="'All Creatures'"
-        (closed)="log($event)"
-        [emptyText]="'Please select a princess'">
-      </ea-multi-select-dropdown>
+
+    <div class="col mb-4">
+      <ea-multi-select-dropdown (failedToOpen)="failedToOpen($event)" [config]="state" [id]="2" (changed)="changed($event)" (closed)="closed($event)" (opened)="opened($event)"></ea-multi-select-dropdown>
     </div>
-    <div class="col-3 mb-4">
-      <ea-multi-select-dropdown
-        [id]="3"
-        (selected)="select($event)"
-        (changed)="log($event)"
-        [label]="'Kingdom'"
-        [options]="kingdoms"
-        [addSelectAllOption]="true"
-        [selectAllText]="'All Kingdoms'"
-        [selectAllByDefault]="true">
-      </ea-multi-select-dropdown>
+
+    <div class="col mb-4">
+      <ea-multi-select-dropdown (failedToOpen)="failedToOpen($event)" [config]="county" [id]="3" (changed)="changed($event)" (closed)="closed($event)" (opened)="opened($event)"></ea-multi-select-dropdown>
     </div>
-    <div class="col-3 mb-4">
-      <ea-multi-select-dropdown
-        [id]="4"
-        (selected)="select($event)"
-        [label]="'Empty'"
-        [options]="empty"
-        [addSelectAllOption]="true"
-        [selectAllByDefault]="true"
-        [emptyText]="'Nothing to see here'">
-      </ea-multi-select-dropdown>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col">
-      <button class="btn btn-primary mr-5" (click)="switch()">Switch Data</button>
-      <button class="btn btn-seconday" (click)="switchBack()">Switch Data Back</button>
+
+    <div class="col mb-4" id="zip">
+      <ea-multi-select-dropdown (failedToOpen)="failedToOpen($event)" [config]="zip" [id]="4" (changed)="changed($event)" (closed)="closed($event)" (opened)="opened($event)"></ea-multi-select-dropdown>
     </div>
   </div>
 </div>

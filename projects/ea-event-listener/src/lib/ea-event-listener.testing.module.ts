@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FakeEaEventListenerDirective } from './directives/fake-event-listener.directive';
+import { FakeEaEventListenerDirective } from './directives/fake-ea-event-listener.directive';
 
 @NgModule({
   imports: [
@@ -9,4 +9,4 @@ import { FakeEaEventListenerDirective } from './directives/fake-event-listener.d
   declarations: [FakeEaEventListenerDirective]
 })
 export class EaEventListenerTestingModule {}
-export { FakeEaEventListenerDirective } from './directives/fake-event-listener.directive';
+export { FakeEaEventListenerDirective } from './directives/fake-ea-event-listener.directive';

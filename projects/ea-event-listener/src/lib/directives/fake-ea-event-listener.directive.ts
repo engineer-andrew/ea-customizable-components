@@ -1,5 +1,5 @@
 import { Directive, OnDestroy, OnInit, Input } from '@angular/core';
-import { EaEventListenerDirective } from './event-listener.directive';
+import { EaEventListenerDirective } from './ea-event-listener.directive';
 import { EaEventListenerConfig } from '../models';
 
 @Directive({

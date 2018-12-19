@@ -8,13 +8,13 @@ $ npm install ea-event-listener
 ```
 
 ### Code
-The code is on [Github](https://github.com/engineer-andrew/ea-customizable-components/tree/master/projects/event-listener).
+The code is on [Github](https://github.com/engineer-andrew/ea-customizable-components/tree/master/projects/ea-event-listener).
 
 ### Quick Notes
 The intention of this directive is to provide an easy way to listen on any element in the UI for standard JavaScript events. For example, you can listen for a click on the document and take some action when that event is "heard". I wrote it to meet my needs so there's probably a lot of stuff it doesn't do, or doesn't do well. Feel free to open an issue or fork it and make changes.
 
 ### Usage
-To use the event-listener, follow these steps:
+To use the ea-event-listener, follow these steps:
 1. Import the `EaEventListenerModule` in your module.
 2. Use `(eaEventListener)="listener($event)` where `listener` is defined on your component and accepts an array of `HTMLElement`s
 3. Use `[config]=listenerConfig` to specify the configuration that should be used by EaEventListener

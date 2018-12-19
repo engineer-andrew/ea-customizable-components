@@ -1,4 +1,4 @@
-import { EaEventListenerDirective } from './event-listener.directive';
+import { EaEventListenerDirective } from './ea-event-listener.directive';
 import { TestBed, async, ComponentFixture } from '@angular/core/testing';
 import { Component, Renderer2 } from '@angular/core';
 import { By } from '@angular/platform-browser';

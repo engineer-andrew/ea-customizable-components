@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { EaMultiSelectDropdownComponent } from './components/multi-select-dropdown.component';
+import { EaMultiSelectDropdownComponent } from './components/ea-multi-select-dropdown.component';
 
 @NgModule({
   imports: [
@@ -11,5 +11,5 @@ import { EaMultiSelectDropdownComponent } from './components/multi-select-dropdo
   providers: []
 })
 export class EaMultiSelectDropdownModule { }
-export { EaMultiSelectDropdownComponent } from './components/multi-select-dropdown.component';
+export { EaMultiSelectDropdownComponent } from './components/ea-multi-select-dropdown.component';
 export { EaMultiSelectDropdownConfig, EaMultiSelectDropdownOption, EaMultiSelectDropdownChangedArgs } from './models';

@@ -15,7 +15,7 @@ import {
 
 @Component({
   selector: 'ea-multi-select-dropdown',
-  templateUrl: './multi-select-dropdown.component.html',
+  templateUrl: './ea-multi-select-dropdown.component.html',
   styles: ['.ea-multi-select-dropdown-container > label { width: 100%; }']
 })
 export class EaMultiSelectDropdownComponent implements OnInit, DoCheck {

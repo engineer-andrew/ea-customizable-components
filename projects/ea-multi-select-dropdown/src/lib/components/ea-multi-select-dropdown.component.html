@@ -8,11 +8,13 @@
     </div>
   </button>
   <div *ngIf="isOpen" [ngClass]="config.listClasses" class="option-list">
-    <div *ngIf="showSelectAllOption" [ngClass]="config.optionClasses" (click)="toggleOption(selectAllOption.id)">
+    <div tabindex="0" role="checkbox" [attr.aria-label]="selectAllOption.display" [attr.aria-checked]="selectAllOption.isSelected" *ngIf="showSelectAllOption"
+      [ngClass]="config.optionClasses" (click)="toggleOption(selectAllOption.id)" (keyup.space)="toggleOption(selectAllOption.id)">
       <i [ngClass]="(selectAllOption.isSelected) ? config.checkedClasses : config.uncheckedClasses"></i>
       {{selectAllOption.display}}
     </div>
-    <div *ngFor="let option of config.options" [ngClass]="config.optionClasses" (click)="toggleOption(option.id)">
+    <div tabindex="0" role="checkbox" [attr.aria-label]="option.display" [attr.aria-checked]="option.isSelected" *ngFor="let option of config.options;"
+      [ngClass]="config.optionClasses" (click)="toggleOption(option.id)" (keyup.space)="toggleOption(option.id)">
       <i [ngClass]="(option.isSelected) ? config.checkedClasses : config.uncheckedClasses"></i>
       {{option.display}}
     </div>

@@ -1,5 +1,3 @@
-import { NgModule } from '@angular/core';
-
 export class KeyValueDifferStub {
   diff(): any {
     return {
@@ -11,8 +9,3 @@ export class KeyValueDifferStub {
     };
   }
 }
-
-@NgModule({
-  declarations: [KeyValueDifferStub]
-})
-export class KeyValueDifferStubModule {}

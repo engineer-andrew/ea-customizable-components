@@ -1,4 +1,3 @@
-import { NgModule } from '@angular/core';
 import { KeyValueDifferFactoryStub } from './';
 
 export class KeyValueDiffersStub {
@@ -6,8 +5,3 @@ export class KeyValueDiffersStub {
     return new KeyValueDifferFactoryStub();
   }
 }
-
-@NgModule({
-  declarations: [KeyValueDiffersStub]
-})
-export class KeyValueDiffersStubModule {}

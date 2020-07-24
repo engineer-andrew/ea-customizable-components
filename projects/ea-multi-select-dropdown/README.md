@@ -387,3 +387,8 @@ export class AppComponent {
 }
 
 ```
+
+#### Build and Publish
+To build, navigate to the root directory (ea-customizable-components) and run the command ```ng build ea-multi-select-dropdown```. This will have the effect of generating an updated component in the dist folder
+
+To publish the updated component, navigate to the dist directory (dist\ea-multi-select-dropdown) and run the command ```npm publish```. You must be logged in to npm and have permissions to publish an update to this package, and be sure to update the package.json for ea-multi-select-dropdown or npm will reject the package.

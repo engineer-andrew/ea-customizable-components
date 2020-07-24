@@ -1,4 +1,4 @@
-<div [ngClass]="config.containerClasses" class="ea-multi-select-dropdown-container">
+<div [ngClass]="config.containerClasses" class="ea-multi-select-dropdown-container" [attr.aria-expanded]="isOpen">
   <label (click)="toggleList()">{{config.labelText}}</label>
   <button [ngClass]="config.buttonClasses" (click)="toggleList()">
     <div [ngClass]="config.buttonWrapperClasses">

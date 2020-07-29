@@ -3,3 +3,4 @@
  */
 
 export * from './lib/ea-event-listener.module';
+export * from './lib/ea-event-listener.testing.module';

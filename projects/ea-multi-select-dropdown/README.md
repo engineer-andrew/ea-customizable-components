@@ -104,16 +104,6 @@ Since: 0.0.1
 
 Default Value: None
 
-<h5 style="font-weight: 700; display: inline;">label</h5>
-<span style="border-radius: .25em; color: white; padding: .5em; margin-left: .5em; background-color: red;">String</span>
-<span style="border-radius: .25em; color: white; padding: .5em; margin-left: .5em; background-color: green;">Optional</span>
-
-Allows you to specify the text that will appear on the button when there are no options to select.
-
-Since: 1.0.4
-
-Default Value: `&nbsp;`
-
 <h5 style="font-weight: 700; display: inline;">id</h5>
 <span style="border-radius: .25em; color: white; padding: .5em; margin-left: .5em; background-color: red;">String</span> or <span style="border-radius: .25em; color: white; padding: .5em; margin-left: .5em; background-color: blue;">Number</span>
 <span style="border-radius: .25em; color: white; padding: .5em; margin-left: .5em; background-color: green;">Optional</span>/<span style="border-radius: .25em; color: red; padding: .5em; margin-left: .5em; background-color: yellow;">Required</span>
@@ -128,11 +118,11 @@ Default Value: None
 <span style="border-radius: .25em; color: white; padding: .5em; margin-left: .5em; background-color: red;">String</span>
 <span style="border-radius: .25em; color: white; padding: .5em; margin-left: .5em; background-color: green;">Optional</span>
 
-Allows you to specify the text that will appear above the button.
+Allows you to specify the text that will appear on the button when there are no options to select.
 
-Since: 0.0.1
+Since: 1.0.4
 
-Default Value: None
+Default Value: `&nbsp;`
 
 <h5 style="font-weight: 700; display: inline;">listClasses</h5>
 <span style="border-radius: .25em; color: white; padding: .5em; margin-left: .5em; background-color: red;">String Array</span>
@@ -192,7 +182,7 @@ Since: 0.0.1
 
 Default Value: `(Select All)`
 
-<h5 style="font-weight: 700; display: inline;">selectAllText</h5>
+<h5 style="font-weight: 700; display: inline;">selectAllValue</h5>
 <span style="border-radius: .25em; color: white; padding: .5em; margin-left: .5em; background-color: red;">String</span>
 <span style="border-radius: .25em; color: white; padding: .5em; margin-left: .5em; background-color: green;">Optional</span>
 

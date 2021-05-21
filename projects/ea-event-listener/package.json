@@ -2,7 +2,7 @@
   "name": "ea-event-listener",
   "author": "Andrew Webster",
   "description": "A directive that allows events to be listened for and some action taken when the event is heard.",
-  "version": "10.0.0",
+  "version": "11.0.0",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/engineer-andrew/ea-customizable-components/issues"
@@ -16,7 +16,7 @@
     "tslib": "^2.0.0"
   },
   "peerDependencies": {
-    "@angular/common": "^10.2.5",
-    "@angular/core": "^10.2.5"
+    "@angular/common": "^11.2.14",
+    "@angular/core": "^11.2.14"
   }
 }

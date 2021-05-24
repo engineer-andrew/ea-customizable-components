@@ -2,7 +2,7 @@
   "name": "ea-multi-select-dropdown",
   "author": "Andrew Webster",
   "description": "A fully customizable multi-select dropdown component for Angular 7.",
-  "version": "7.1.2",
+  "version": "12.0.0",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/engineer-andrew/ea-customizable-components/issues"
@@ -12,8 +12,11 @@
     "url": "https://github.com/engineer-andrew/ea-customizable-components.git"
   },
   "private": false,
+  "dependencies": {
+    "tslib": "^2.0.0"
+  },
   "peerDependencies": {
-    "@angular/common": "^7.1.0",
-    "@angular/core": "^7.1.0"
+    "@angular/common": "^12.0.1",
+    "@angular/core": "^12.0.1"
   }
 }

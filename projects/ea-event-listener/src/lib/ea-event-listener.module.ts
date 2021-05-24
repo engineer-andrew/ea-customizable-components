@@ -1,5 +1,6 @@
-import { NgModule, ModuleWithProviders } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
 import { EaEventListenerDirective } from './directives/ea-event-listener.directive';
 
 @NgModule({
@@ -11,4 +12,6 @@ import { EaEventListenerDirective } from './directives/ea-event-listener.directi
   providers: []
 })
 export class EaEventListenerModule { }
+export { EaEventListenerDirective } from './directives/ea-event-listener.directive';
+export { EaEventListenerMatcherTypes } from './enums';
 export { EaEventListenerConfig, EaEventListenerMatchable } from './models';

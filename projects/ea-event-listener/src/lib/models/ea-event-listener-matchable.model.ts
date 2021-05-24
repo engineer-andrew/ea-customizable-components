@@ -1,4 +1,6 @@
+import { EaEventListenerMatcherTypes } from '../enums';
+
 export interface EaEventListenerMatchable {
-  matcher: string;
+  matcher: EaEventListenerMatcherTypes;
   matchers: string[];
 }

@@ -2,7 +2,7 @@
   "name": "ea-event-listener",
   "author": "Andrew Webster",
   "description": "A directive that allows events to be listened for and some action taken when the event is heard.",
-  "version": "11.0.0",
+  "version": "12.0.0",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/engineer-andrew/ea-customizable-components/issues"

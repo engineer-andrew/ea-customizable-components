@@ -5,7 +5,7 @@ import {
   EaMultiSelectDropdownConfig,
   EaMultiSelectDropdownChangedArgs
 } from '../../projects/ea-multi-select-dropdown/src/public_api';
-import { EaEventListenerConfig } from '../../projects/ea-event-listener/src/public_api';
+import { EaEventListenerConfig, EaEventListenerMatcherTypes } from '../../projects/ea-event-listener/src/public_api';
 
 @Component({
   selector: 'app-root',
@@ -25,10 +25,10 @@ export class AppComponent {
     event: 'click',
     listenOn: 'document',
     matchables: [{
-      matcher: 'class',
+      matcher: EaEventListenerMatcherTypes.ClassMatch,
       matchers: ['ea-multi-select-dropdown-container']
     }, {
-      matcher: 'id',
+      matcher: EaEventListenerMatcherTypes.IdMatch,
       matchers: ['zip']
     }]
   };
@@ -179,7 +179,6 @@ export class AppComponent {
   }
 
   closed(id: number | string): void {
-    // this.state.options = this.availableStates.filter(s => s.country === this.country.options.find(o => o.isSelected).value);
     console.log('closed', id);
   }
 
@@ -193,7 +192,7 @@ export class AppComponent {
         }
         break;
       case 2:
-        this.county.emptyText = 'Please wait...';
+        this.county.emptyText = this.state.options.filter(o => o.isSelected)?.length ? 'Please wait...' : 'Please select a state';
         this.county.options = [];
         setTimeout(() => {
           if (!!this.state.options.find(o => o.isSelected)) {
@@ -220,10 +219,12 @@ export class AppComponent {
   }
 
   failedToOpen(id: number | string): void {
+    console.log('failedToOpen', id);
     this.opened(id);
   }
 
   opened(id: number | string): void {
+    console.log('opened', id);
     this.dropdowns.forEach(d => {
       if (d.id !== id) {
         d.closeList();

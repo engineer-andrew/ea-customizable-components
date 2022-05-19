@@ -2,6 +2,7 @@ import { EaEventListenerDirective } from './ea-event-listener.directive';
 import { TestBed, async, ComponentFixture } from '@angular/core/testing';
 import { Component, Renderer2 } from '@angular/core';
 import { By } from '@angular/platform-browser';
+import { EaEventListenerMatcherTypes } from '../enums';
 
 @Component({
   selector: 'ea-test-component',
@@ -39,7 +40,7 @@ describe('EventListenerDirective', () => {
       event: 'click',
       listenOn: 'document',
       matchables: [{
-        matcher: 'class',
+        matcher: EaEventListenerMatcherTypes.ClassMatch,
         matchers: ['ea-multi-select-dropdown-container']
       }]
     };
@@ -55,7 +56,7 @@ describe('EventListenerDirective', () => {
       event: 'click',
       listenOn: 'document',
       matchables: [{
-        matcher: 'class',
+        matcher: EaEventListenerMatcherTypes.ClassMatch,
         matchers: ['ea-multi-select-dropdown-container']
       }]
     };
@@ -72,7 +73,7 @@ describe('EventListenerDirective', () => {
       event: 'click',
       listenOn: 'document',
       matchables: [{
-        matcher: 'class',
+        matcher: EaEventListenerMatcherTypes.ClassMatch,
         matchers: ['ea-multi-select-dropdown-container']
       }]
     };

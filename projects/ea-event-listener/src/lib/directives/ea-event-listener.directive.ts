@@ -40,7 +40,7 @@ export class EaEventListenerDirective implements OnInit, OnDestroy {
         switch (m.matcher) {
           case EaEventListenerMatcherTypes.ClassMatch:
             // if we should be searching based on class then check the element's class to see if it (the element that was interacted with) has that class on it
-            if (!!element.className) {
+            if (!!element.className && !!element.className.includes) {
               // there can be multiple matches so check for all of them
               m.matchers.forEach(matcher => {
                 if (element.className.includes(matcher)) {

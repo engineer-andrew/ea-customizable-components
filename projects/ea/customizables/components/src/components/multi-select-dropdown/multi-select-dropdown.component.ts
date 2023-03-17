@@ -8,6 +8,7 @@ import {
   OnInit,
   KeyValueChangeRecord
 } from '@angular/core';
+import { DefaultEaMultiSelectDropdownConfig } from '../../defaults';
 import { EaMultiSelectDropdownChangedKeys } from '../../enums';
 import { EaMultiSelectDropdownChangedArgs, EaMultiSelectDropdownConfig, EaMultiSelectDropdownOption } from '../../models';
 
@@ -36,19 +37,21 @@ export class EaMultiSelectDropdownComponent implements OnInit, DoCheck {
   public buttonText!: string;
   public failedToOpen = false;
   public isOpen = false;
-  public originals: {id: (string|number); isSelected: boolean}[] = [];
+  public originals: Array<EaMultiSelectDropdownOption> = [];
   public selectAllOption!: EaMultiSelectDropdownOption;
   public showSelectAllOption = false;
 
   constructor(private keyValueDiffers: KeyValueDiffers) {}
 
   public ngOnInit(): void {
+    const defaultConfig = new DefaultEaMultiSelectDropdownConfig();
+    this.config = Object.assign(defaultConfig, this.config);
     // define the (Select All) option
     this.selectAllOption = {
       display: this.config.selectAllText,
-      id: 0,
+      id: 'select-all',
       isSelected: false,
-      value: 'select-all'
+      value: this.config.selectAllValue
     } as EaMultiSelectDropdownOption;
 
     // if the width of the list of options hasn't been explicitly set and the width of the button has (using a bootstrap 'col' class), make them the same width
@@ -92,7 +95,7 @@ export class EaMultiSelectDropdownComponent implements OnInit, DoCheck {
             // in the event the 'empty text' changes we only really need to update the button text if there are no options
             // if there are options now, then the empty text changes (and we don't update the button text), then the options get removed, that'll trigger the button
             // text to get updated again anyway (above)
-            if (!!this.config.options?.length) {
+            if (!this.config.options?.length) {
               this.updateButtonText();
             }
             break;
@@ -155,11 +158,8 @@ export class EaMultiSelectDropdownComponent implements OnInit, DoCheck {
   }
 
   public toggleOption(id: string | number): void {
-    console.log(1, id);
     if (this.config?.options?.length) {
-      console.log(2);
       if (id === this.selectAllOption.id) {
-        console.log(3);
         // if the Select All option was selected, toggle it
         this.selectAllOption.isSelected = !this.selectAllOption.isSelected;
         // and set all of the options to match the Select All option (so if Select All is now selected, all options will now be selected as well)
@@ -167,11 +167,9 @@ export class EaMultiSelectDropdownComponent implements OnInit, DoCheck {
           o.isSelected = this.selectAllOption.isSelected;
         });
       } else {
-        console.log(4);
         // find the option that was selected
         const option = this.config.options.find(o => o.id === id);
         if (!!option) {
-          console.log(5, option.isSelected);
           // toggle the option's selected property
           option.isSelected = !option.isSelected;
 
@@ -232,10 +230,7 @@ export class EaMultiSelectDropdownComponent implements OnInit, DoCheck {
       return;
     }
 
-    this.originals = [];
-    this.config.options.forEach(o => {
-      this.originals.push({id: o.id, isSelected: o.isSelected});
-    });
+    this.originals = this.config.options.map((option: EaMultiSelectDropdownOption) => Object.assign({}, option));
   }
 
   private setShowSelectAllOption(): void {

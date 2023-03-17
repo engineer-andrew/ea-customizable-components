@@ -3,6 +3,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { EaMultiSelectDropdownComponent } from './multi-select-dropdown.component';
 import { KeyValueDifferFactoryStub, KeyValueDifferStub, KeyValueDiffersStub } from '../../../testing';
 import { KeyValueDiffers } from '@angular/core';
+import { EaMultiSelectDropdownConfig, EaMultiSelectDropdownOption } from '../../models';
 
 describe('EaMultiSelectDropdownComponent', () => {
   let changes: any;
@@ -58,17 +59,10 @@ describe('EaMultiSelectDropdownComponent', () => {
     });
 
     it('should use the default settings for everything that is not provided by the parent component', () => {
-      component.config = {
-        allowMultiple: false,
-        options: [
-          { display: 'First Option', id: 1, value: '[First].[Option]', isSelected: false }
-        ]
-      };
-
-      component.ngOnInit();
-
-      expect(component.config).toEqual({
-        addSelectAllOption: false,
+      component.config.allowMultiple = false;
+      component.config.options = [ { display: 'First Option', id: 1, value: '[First].[Option]', isSelected: false } ];
+      const expected = {
+        addSelectAllOption: true,
         allowMultiple: false,
         buttonClasses: ['btn', 'btn-default'],
         buttonIconClasses: ['fa', 'fa-angle-down', 'align-self-center'],
@@ -84,7 +78,12 @@ describe('EaMultiSelectDropdownComponent', () => {
         selectAllText: '(Select All)',
         showSelectAllWhenMoreThan: 1,
         uncheckedClasses: ['fa', 'fa-square-o']
-      });
+      } as EaMultiSelectDropdownConfig;
+
+      component.ngOnInit();
+
+      // compare using the spread operator to ignore the constructor used to create the default object
+      expect({...component.config}).toEqual({...expected});
     });
 
     it('should replace the default configuration settings with what the parent component provided', () => {
@@ -104,10 +103,7 @@ describe('EaMultiSelectDropdownComponent', () => {
         showSelectAllWhenMoreThan: 5,
         uncheckedClasses: ['fa', 'fa-circle-o']
       };
-
-      component.ngOnInit();
-
-      expect(component.config).toEqual({
+      const expected = {
         addSelectAllOption: true,
         allowMultiple: false,
         buttonClasses: ['btn', 'btn-secondary'],
@@ -122,7 +118,12 @@ describe('EaMultiSelectDropdownComponent', () => {
         selectAllText: '(GET \'EM)',
         showSelectAllWhenMoreThan: 5,
         uncheckedClasses: ['fa', 'fa-circle-o']
-      });
+      } as EaMultiSelectDropdownConfig;
+
+      component.ngOnInit();
+
+      // compare using the spread operator to ignore the constructor used to create the default object
+      expect({...component.config}).toEqual({...expected});
     });
 
     it('should stretch the list of options to match the width of the button when the button has a width specified with Bootstrap and the list of options is not styled at all', () => {
@@ -171,7 +172,7 @@ describe('EaMultiSelectDropdownComponent', () => {
       expect(component.selectAllOption).toEqual({
         display: 'Get All Dogs',
         id: 'select-all',
-        isSelected: true,
+        isSelected: false,
         value: '[Dogs].[All]'
       });
     });
@@ -434,11 +435,11 @@ describe('EaMultiSelectDropdownComponent', () => {
       component.isOpen = true;
       component.originals = [{
         id: 1, isSelected: true
-      }, {
+      } as EaMultiSelectDropdownOption, {
         id: 2, isSelected: true
-      }, {
+      } as EaMultiSelectDropdownOption, {
         id: 3, isSelected: false
-      }];
+      } as EaMultiSelectDropdownOption];
     });
 
     it('should close the list', () => {
@@ -498,12 +499,21 @@ describe('EaMultiSelectDropdownComponent', () => {
       component.closeList();
 
       expect(component.originals).toEqual([{
-        id: 1, isSelected: false
-      }, {
-        id: 2, isSelected: false
-      }, {
-        id: 3, isSelected: true
-      }]);
+        display: 'First Option',
+        id: 1,
+        isSelected: false,
+        value: '[First].[Option]'
+      } as EaMultiSelectDropdownOption, {
+        display: 'Second Option',
+        id: 2,
+        isSelected: false,
+        value: '[Second].[Option]'
+      } as EaMultiSelectDropdownOption, {
+        display: 'Third Option',
+        id: 3,
+        isSelected: true,
+        value: '[Third].[Option]'
+      } as EaMultiSelectDropdownOption]);
     });
 
     it('should reset the indicator that the dropdown should automatically open (if so configured) once data has been loaded', () => {
@@ -545,12 +555,21 @@ describe('EaMultiSelectDropdownComponent', () => {
       component.toggleList();
 
       expect(component.originals).toEqual([{
-        id: 1, isSelected: true
-      }, {
-        id: 2, isSelected: true
-      }, {
-        id: 3, isSelected: false
-      }]);
+        display: 'First Option',
+        id: 1,
+        isSelected: true,
+        value: '[First].[Option]'
+      } as EaMultiSelectDropdownOption, {
+        display: 'Second Option',
+        id: 2,
+        isSelected: true,
+        value: '[Second].[Option]'
+      } as EaMultiSelectDropdownOption, {
+        display: 'Third Option',
+        id: 3,
+        isSelected: false,
+        value: '[Third].[Option]'
+      } as EaMultiSelectDropdownOption]);
     });
 
     it('should notify all listeners that the list has been opened', () => {

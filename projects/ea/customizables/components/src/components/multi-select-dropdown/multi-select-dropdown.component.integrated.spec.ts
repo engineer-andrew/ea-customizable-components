@@ -366,7 +366,7 @@ describe('On the EaMultiSelectDropdownComponent', () => {
     expect(options.length).toBe(3);
   });
 
-  fit('each selectable option should select itself when it is clicked while it is not selected', () => {
+  it('each selectable option should select itself when it is clicked while it is not selected', () => {
     spyOn(component, 'toggleOption').and.callThrough();
     component.showSelectAllOption = false;
     component.config.options = [
@@ -374,6 +374,7 @@ describe('On the EaMultiSelectDropdownComponent', () => {
       <EaMultiSelectDropdownOption>{ id: 2, display: 'Second Option', value: '[Second].[Option]', isSelected: false },
       <EaMultiSelectDropdownOption>{ id: 3, display: 'Third Option', value: '[Third].[Option]', isSelected: false }
     ];
+    component.config.allowMultiple = true;
     const button = fixture.debugElement.query(By.css('button'));
     button.triggerEventHandler('click', null);
     fixture.detectChanges();
